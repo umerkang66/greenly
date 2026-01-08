@@ -18,6 +18,7 @@ model User {
 
   sessions Session[]
   accounts Account[]
+  activities Activity[]
 }
 
 model Session {
@@ -56,4 +57,18 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Activity {
+  id        String   @id @map("_id") @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  String   // "TRANSPORT", "DIET", "ENERGY"
+  action    String   // "Drive (Gas)", "Vegetarian Meal"
+  value     Float    // Input value (e.g. km, meals, kWh)
+  unit      String   // "km", "meal", "kWh"
+  carbon    Float    // kg CO2e
+  type      String   // "EMISSION" or "SAVING"
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
 }
