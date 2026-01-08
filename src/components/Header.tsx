@@ -32,8 +32,8 @@ export function Header() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
                 <motion.div
                     className={`relative mx-auto flex items-center justify-between rounded-full border transition-all duration-300 px-4 sm:px-6 ${isScrolled
-                        ? "h-16 border-border/40 bg-background/70 dark:bg-background/30 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-white/5 dark:border-white/10"
-                        : "h-20 border-transparent bg-transparent"
+                        ? "h-16 border-green-200 dark:border-green-800 bg-green-100/95 dark:bg-green-950/95 backdrop-blur-2xl shadow-lg shadow-green-900/10 dark:shadow-black/20"
+                        : "h-16 border-green-200 dark:border-green-800 bg-green-100/90 dark:bg-green-950/90 backdrop-blur-xl"
                         }`}
                 >
                     {/* Left: Logo */}
@@ -42,8 +42,8 @@ export function Header() {
                             href="/"
                             className="group flex items-center gap-2"
                         >
-                            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-green-500/20 to-teal-500/20 transition-all group-hover:from-green-500/30 group-hover:to-teal-500/30">
-                                <Leaf className="h-6 w-6 text-green-600 dark:text-green-400 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
+                            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-green-500/30 to-teal-500/30 transition-all group-hover:from-green-500/40 group-hover:to-teal-500/40">
+                                <Leaf className="h-6 w-6 text-green-700 dark:text-green-400 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
                             </div>
                             <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-700 via-emerald-600 to-teal-600 dark:from-green-400 dark:via-emerald-400 dark:to-teal-300">
                                 Greenly
@@ -53,7 +53,7 @@ export function Header() {
 
                     {/* Center: Navigation Pill */}
                     <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
-                        <div className="flex items-center p-1 rounded-full bg-secondary/30 border border-border/50 backdrop-blur-md">
+                        <div className="flex items-center p-1 rounded-full bg-green-200/80 dark:bg-white/10 border border-green-300 dark:border-white/10 backdrop-blur-md shadow-sm">
                             {navLinks.map((link) => {
                                 const isActive = pathname?.startsWith(link.href);
                                 const Icon = link.icon;
@@ -63,8 +63,8 @@ export function Header() {
                                         key={link.href}
                                         href={link.href}
                                         className={`relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${isActive
-                                            ? "text-primary-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
+                                            ? "text-white"
+                                            : "text-green-800 dark:text-gray-400 hover:text-green-950 dark:hover:text-white"
                                             }`}
                                     >
                                         {isActive && (
@@ -75,7 +75,7 @@ export function Header() {
                                             />
                                         )}
                                         <span className="relative z-10 flex items-center gap-2">
-                                            <Icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : ''}`} />
+                                            <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
                                             {link.label}
                                         </span>
                                     </Link>
@@ -88,7 +88,7 @@ export function Header() {
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
 
-                        <div className="h-6 w-[1px] bg-border mx-1" />
+                        <div className="h-6 w-[1px] bg-green-300 dark:bg-white/20 mx-1" />
 
                         {isPending ? (
                             <div className="h-10 w-24 animate-pulse rounded-full bg-muted" />
@@ -98,7 +98,7 @@ export function Header() {
                             <div className="flex items-center gap-2">
                                 <Link
                                     href="/signin"
-                                    className="hidden sm:flex px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                    className="hidden sm:flex px-4 py-2 text-sm font-medium text-green-800 dark:text-gray-400 hover:text-green-950 dark:hover:text-white transition-colors"
                                 >
                                     Sign In
                                 </Link>

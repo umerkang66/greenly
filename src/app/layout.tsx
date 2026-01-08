@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
+import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -15,6 +15,8 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import Providers from "@/components/Providers";
+
+import { MainLayout } from "@/components/MainLayout";
 
 export default function RootLayout({
   children,
@@ -33,10 +35,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1 pt-16">{children}</main>
-            </div>
+            <MainLayout>
+              {children}
+            </MainLayout>
           </Providers>
         </ThemeProvider>
       </body>
