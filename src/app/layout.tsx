@@ -9,7 +9,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EcoMate - Community Carbon Footprint Tracker",
+  title: "Greenly - Community Carbon Footprint Tracker",
   description: "Empower your community to collaboratively monitor, manage, and reduce carbon footprint through shared goals and challenges",
 };
 

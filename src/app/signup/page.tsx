@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signUp, signIn } from "@/lib/auth-client";
+import { motion } from "framer-motion";
+import { Leaf, Mail, Lock, User, Loader2, Check } from "lucide-react";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -12,7 +14,6 @@ export default function SignUpPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [isGithubLoading, setIsGithubLoading] = useState(false);
 
@@ -30,13 +31,13 @@ export default function SignUpPage() {
 
             if (result.error) {
                 setError(result.error.message || "Failed to create account");
+                setIsLoading(false);
             } else {
                 router.push("/");
                 router.refresh();
             }
         } catch {
             setError("An unexpected error occurred");
-        } finally {
             setIsLoading(false);
         }
     };
@@ -57,59 +58,91 @@ export default function SignUpPage() {
         }
     };
 
-    const getPasswordStrength = (password: string) => {
-        if (!password) return { strength: 0, label: "", color: "" };
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-        if (/\d/.test(password)) strength++;
-        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    const getPasswordStrength = (pass: string) => {
+        if (!pass) return { strength: 0, label: "", color: "bg-muted" };
+        let s = 0;
+        if (pass.length >= 8) s++;
+        if (/[A-Z]/.test(pass)) s++;
+        if (/[0-9]/.test(pass)) s++;
+        if (/[^a-zA-Z0-9]/.test(pass)) s++;
 
-        const labels = ["", "Weak", "Fair", "Good", "Strong"];
-        const colors = ["", "bg-destructive", "bg-warning", "bg-accent", "bg-success"];
-        return { strength, label: labels[strength], color: colors[strength] };
+        const colors = ["bg-destructive", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
+        return { strength: s, color: colors[s - 1] || "bg-muted" };
     };
 
-    const passwordStrength = getPasswordStrength(password);
+    const strength = getPasswordStrength(password);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-            <div className="relative z-10 w-full max-w-md">
-                {/* Card */}
-                <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-                    {/* Header */}
-                    <div className="mb-8 text-center">
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 text-2xl font-bold text-primary cursor-pointer"
-                        >
-                            <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="currentColor" opacity="0.1"/>
-                                <path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                                <path d="M12 16v-4M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            </svg>
-                            <span>EcoMate</span>
-                        </Link>
-                        <h1 className="mt-4 text-2xl font-semibold text-foreground">
-                            Join EcoMate
+        <div className="flex min-h-screen w-full">
+
+            {/* Left Side - Hero Image/Abstract (Hidden on mobile) */}
+            <div className="hidden lg:flex flex-1 relative bg-black items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop')] bg-cover bg-center opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-br from-green-900/80 to-emerald-900/40 mix-blend-multiply" />
+
+                <div className="relative z-10 p-12 text-white max-w-xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl">
+                                <Leaf className="w-8 h-8 text-green-400" />
+                            </div>
+                            <h2 className="text-3xl font-bold tracking-tight">Greenly</h2>
+                        </div>
+                        <h1 className="text-5xl font-bold leading-tight mb-6">
+                            Create your eco profile.
                         </h1>
-                        <p className="mt-2 text-muted-foreground">
-                            Start your sustainability journey today
-                        </p>
+                        <div className="space-y-4">
+                            {['Track carbon footprint', 'Compete with friends', 'Earn sustainable rewards', 'Join global challenges'].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 + (i * 0.1) }}
+                                    className="flex items-center gap-3 text-lg text-white/90"
+                                >
+                                    <div className="p-1 rounded-full bg-green-500/20">
+                                        <Check className="w-4 h-4 text-green-400" />
+                                    </div>
+                                    {item}
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+
+
+            {/* Right Side - Form */}
+            <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-background">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-md space-y-8"
+                >
+                    <div className="text-center lg:text-left">
+                        <Link href="/" className="lg:hidden inline-flex items-center gap-2 mb-8 group">
+                            <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                <Leaf className="w-6 h-6 text-primary group-hover:rotate-12 transition-transform" />
+                            </div>
+                            <span className="text-xl font-bold">Greenly</span>
+                        </Link>
+                        <h2 className="text-3xl font-bold tracking-tight">Get Started</h2>
+                        <p className="text-muted-foreground mt-2">Create a new account to begin your journey</p>
                     </div>
 
-                    {/* OAuth Buttons */}
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
                         <button
                             onClick={() => handleOAuthSignIn("google")}
                             disabled={isGoogleLoading || isGithubLoading || isLoading}
-                            className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-input bg-background text-foreground transition-all duration-300 hover:bg-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center gap-2 h-14 rounded-xl border border-input bg-background hover:bg-muted/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 disabled:opacity-50 group transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                         >
-                            {isGoogleLoading ? (
-                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            ) : (
-                                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                            {isGoogleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                                     <path
                                         fill="currentColor"
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -128,133 +161,120 @@ export default function SignUpPage() {
                                     />
                                 </svg>
                             )}
-                            {isGoogleLoading ? "Connecting..." : "Continue with Google"}
+                            <span className="font-medium group-hover:text-foreground/80">Google</span>
                         </button>
-
                         <button
                             onClick={() => handleOAuthSignIn("github")}
                             disabled={isGoogleLoading || isGithubLoading || isLoading}
-                            className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-input bg-background text-foreground transition-all duration-300 hover:bg-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center gap-2 h-14 rounded-xl border border-input bg-background hover:bg-muted/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 disabled:opacity-50 group transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                         >
-                            {isGithubLoading ? (
-                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            ) : (
-                                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            {isGithubLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                                 </svg>
                             )}
-                            {isGithubLoading ? "Connecting..." : "Continue with GitHub"}
+                            <span className="font-medium group-hover:text-foreground/80">GitHub</span>
                         </button>
                     </div>
 
-                    {/* Divider */}
-                    <div className="my-6 flex items-center gap-4">
-                        <div className="h-px flex-1 bg-border" />
-                        <span className="text-sm text-muted-foreground">or</span>
-                        <div className="h-px flex-1 bg-border" />
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-border" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">Or register with email</span>
+                        </div>
                     </div>
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
-                            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                            <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-lg border border-destructive/20 animate-shake">
                                 {error}
                             </div>
                         )}
 
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-2">
-                                Full Name
-                            </label>
-                            <input
-                                id="name"
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                                disabled={isLoading || isGoogleLoading || isGithubLoading}
-                                className="h-12 w-full rounded-xl border border-input bg-background px-4 text-foreground placeholder-muted-foreground outline-none transition-all duration-300 focus:border-foreground focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                                placeholder="John Doe"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-2">
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                disabled={isLoading || isGoogleLoading || isGithubLoading}
-                                className="h-12 w-full rounded-xl border border-input bg-background px-4 text-foreground placeholder-muted-foreground outline-none transition-all duration-300 focus:border-foreground focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                                placeholder="you@example.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-2">
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength={8}
-                                disabled={isLoading || isGoogleLoading || isGithubLoading}
-                                className="h-12 w-full rounded-xl border border-input bg-background px-4 text-foreground placeholder-muted-foreground outline-none transition-all duration-300 focus:border-foreground focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                                placeholder="••••••••"
-                            />
-                            {password && (
-                                <div className="mt-2 space-y-1">
-                                    <div className="flex gap-1">
-                                        {[1, 2, 3, 4].map((level) => (
-                                            <div
-                                                key={level}
-                                                className={`h-1 flex-1 rounded-full transition-colors ${level <= passwordStrength.strength
-                                                        ? passwordStrength.color
-                                                        : "bg-muted"
-                                                    }`}
-                                            />
+                        <div className="space-y-4">
+                            <div className="space-y-2 group">
+                                <label className="text-sm font-medium leading-none transition-colors group-focus-within:text-primary" htmlFor="name">Full Name</label>
+                                <div className="relative">
+                                    <div className="absolute left-3 top-3.5 text-muted-foreground transition-colors group-focus-within:text-primary">
+                                        <User className="h-5 w-5" />
+                                    </div>
+                                    <input
+                                        id="name"
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="flex h-12 w-full rounded-xl border border-input bg-card pl-10 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 hover:border-primary/50 shadow-sm"
+                                        placeholder="John Doe"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2 group">
+                                <label className="text-sm font-medium leading-none transition-colors group-focus-within:text-primary" htmlFor="email">Email</label>
+                                <div className="relative">
+                                    <div className="absolute left-3 top-3.5 text-muted-foreground transition-colors group-focus-within:text-primary">
+                                        <Mail className="h-5 w-5" />
+                                    </div>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="flex h-12 w-full rounded-xl border border-input bg-card pl-10 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 hover:border-primary/50 shadow-sm"
+                                        placeholder="name@example.com"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2 group">
+                                <label className="text-sm font-medium leading-none transition-colors group-focus-within:text-primary" htmlFor="password">Password</label>
+                                <div className="relative">
+                                    <div className="absolute left-3 top-3.5 text-muted-foreground transition-colors group-focus-within:text-primary">
+                                        <Lock className="h-5 w-5" />
+                                    </div>
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="flex h-12 w-full rounded-xl border border-input bg-card pl-10 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 hover:border-primary/50 shadow-sm"
+                                        placeholder="Min 8 characters"
+                                        required
+                                        minLength={8}
+                                    />
+                                </div>
+                                {/* Password Strength Indicator */}
+                                {password && (
+                                    <div className="flex gap-1 h-1 mt-2">
+                                        {[1, 2, 3, 4].map(l => (
+                                            <div key={l} className={`flex-1 rounded-full ${l <= strength.strength ? strength.color : 'bg-muted'} transition-colors duration-300`} />
                                         ))}
                                     </div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Password strength: <span className={
-                                            passwordStrength.strength >= 3 ? "text-success" :
-                                                passwordStrength.strength >= 2 ? "text-warning" : "text-destructive"
-                                        }>{passwordStrength.label}</span>
-                                    </p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
 
                         <button
                             type="submit"
-                            disabled={isLoading || isGoogleLoading || isGithubLoading}
-                            className="flex items-center justify-center gap-2 h-12 w-full rounded-xl bg-primary font-medium text-primary-foreground transition-all duration-300 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            disabled={isLoading}
+                            className="group relative w-full inline-flex h-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-base overflow-hidden cursor-pointer"
                         >
-                            {isLoading && (
-                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            )}
-                            {isLoading ? "Creating account..." : "Create Account"}
+                            <span className="relative z-10 flex items-center gap-2">
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:animate-shine pointer-events-none" />
                         </button>
                     </form>
 
-                    {/* Footer */}
-                    <p className="mt-6 text-center text-sm text-muted-foreground">
+                    <p className="text-center text-sm text-muted-foreground">
                         Already have an account?{" "}
-                        <Link
-                            href="/signin"
-                            className="font-medium text-foreground hover:underline transition-all"
-                        >
+                        <Link href="/signin" className="font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-4 pointer-events-auto transition-colors">
                             Sign in
                         </Link>
                     </p>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

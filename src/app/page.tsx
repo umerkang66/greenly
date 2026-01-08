@@ -1,616 +1,390 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import {
+  Leaf,
+  Wind,
+  Droplets,
+  Zap,
+  Users,
+  Trophy,
+  ArrowRight,
+  Activity,
+  BarChart3,
+  Globe,
+  Quote,
+  Send,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Bike,
+  Car
+} from "lucide-react";
 
-// Falling Leaf Component
-function FallingLeaf({ delay, startX, duration }: { delay: number; startX: number; duration: number }) {
+// --- Hero Section Component ---
+function Hero() {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+
   return (
-    <motion.div
-      className="absolute w-6 h-6 text-primary/40"
-      style={{ left: `${startX}%`, top: -20 }}
-      animate={{
-        y: ["0vh", "110vh"],
-        x: [0, Math.sin(delay * 10) * 50, Math.sin(delay * 5) * -30, 0],
-        rotate: [0, 360, 720],
-        opacity: [0, 1, 1, 0],
-      }}
-      transition={{
-        duration: duration,
-        repeat: Infinity,
-        delay: delay,
-        ease: "linear",
-      }}
-    >
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-        <path d="M17 8c-4 0-7 3-7 7 0 1 .2 2 .5 3M17 8c0 4-3 7-7 7" stroke="currentColor" strokeWidth="1.5" fill="none" />
-        <path d="M17 8l-2 2M12 18V9" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    </motion.div>
+    <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
+      {/* Animated Background Mesh */}
+      <div className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-20 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-green-200/50 dark:bg-green-900/40 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-lighten animate-blob" />
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/50 dark:bg-emerald-900/40 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-lighten animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-32 left-[20%] w-[60%] h-[60%] bg-teal-200/50 dark:bg-teal-900/40 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-lighten animate-blob animation-delay-4000" />
+      </div>
+
+      <div className="container px-4 md:px-6 relative z-10 flex flex-col items-center text-center space-y-8">
+
+
+        <motion.h1
+          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground max-w-5xl"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Track Your Impact,<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400 dark:from-green-400 dark:to-emerald-200">
+            Heal the Planet.
+          </span>
+        </motion.h1>
+
+        <motion.p
+          className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        >
+          Join a global community committed to reducing carbon footprints. Monitor, connect, and thrive with Greenly.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center gap-4 mt-8"
+        >
+          <Link href="/signup" className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-primary-foreground transition-all duration-200 bg-primary rounded-full hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary overflow-hidden shadow-lg shadow-green-500/20">
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-shine" />
+            Get Started Free
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link href="/signin" className="px-8 py-4 text-lg font-medium text-foreground transition-colors hover:text-primary">
+            Log in existing account
+          </Link>
+        </motion.div>
+
+        {/* Floating Elements controlled by Scroll */}
+        <motion.div style={{ y: y1, x: -20 }} className="absolute left-10 top-32 hidden xl:block opacity-60">
+          <FloatingCard icon={<Leaf className="w-6 h-6 text-green-500" />} label="12kg Saver" />
+        </motion.div>
+        <motion.div style={{ y: y2, x: 20 }} className="absolute right-10 bottom-40 hidden xl:block opacity-60">
+          <FloatingCard icon={<Trophy className="w-6 h-6 text-yellow-500" />} label="Top 5%" />
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
-// Wind Breeze Line Component
-function BreezeLine({ delay, y }: { delay: number; y: number }) {
+function FloatingCard({ icon, label }: { icon: React.ReactNode, label: string }) {
   return (
-    <motion.div
-      className="absolute h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent"
-      style={{ top: `${y}%`, left: 0, right: 0 }}
-      animate={{
-        x: ["-100%", "200%"],
-        opacity: [0, 0.6, 0],
-      }}
-      transition={{
-        duration: 4,
-        repeat: Infinity,
-        delay: delay,
-        ease: "easeInOut",
-      }}
-    />
-  );
+    <div className="flex items-center gap-3 bg-card/80 backdrop-blur-md border border-border p-4 rounded-2xl shadow-xl">
+      <div className="p-2 bg-background rounded-full shadow-sm">
+        {icon}
+      </div>
+      <span className="font-semibold text-sm">{label}</span>
+    </div>
+  )
 }
 
-// Feature Card with directional hover and lightning effect
-function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode; title: string; description: string; delay: number }) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
+// --- Bento Grid Components ---
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left - rect.width / 2) / 20;
-    const y = (e.clientY - rect.top - rect.height / 2) / 20;
-    setMousePosition({ x, y });
-  };
-
+function BentoCard({ children, className, delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay }}
-      whileHover={{ x: mousePosition.x, y: mousePosition.y, scale: 1.02 }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setMousePosition({ x: 0, y: 0 }); setIsHovered(false); }}
-      className="relative group cursor-pointer"
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, delay }}
+      className={`bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden relative group ${className}`}
     >
-      <div className="relative p-12 rounded-3xl border border-primary/20 bg-white/60 backdrop-blur-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden min-h-[320px]">
-        {/* Lightning/Thunder effect on hover */}
-        {isHovered && (
-          <>
-            {/* Lightning bolt lines */}
-            <motion.div
-              className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-primary via-primary/80 to-transparent"
-              initial={{ opacity: 0, scaleY: 0 }}
-              animate={{ opacity: [0, 1, 0], scaleY: [0, 1, 0] }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
-            <motion.div
-              className="absolute top-0 right-1/3 w-0.5 h-3/4 bg-gradient-to-b from-primary/80 via-primary/60 to-transparent"
-              initial={{ opacity: 0, scaleY: 0 }}
-              animate={{ opacity: [0, 0.8, 0], scaleY: [0, 1, 0] }}
-              transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }}
-            />
-            {/* Flash glow effect */}
-            <motion.div
-              className="absolute inset-0 rounded-3xl"
-              style={{ boxShadow: '0 0 60px rgba(16, 185, 129, 0.4), inset 0 0 30px rgba(16, 185, 129, 0.1)' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0.3] }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-            {/* Electric sparks */}
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-primary rounded-full"
-                style={{
-                  left: `${20 + Math.random() * 60}%`,
-                  top: `${20 + Math.random() * 60}%`,
-                }}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.5, 0],
-                }}
-                transition={{
-                  duration: 0.3,
-                  delay: i * 0.05,
-                  ease: "easeOut"
-                }}
+      {children}
+    </motion.div>
+  );
+}
+
+// --- Impact Estimator ---
+function ImpactEstimator() {
+  const [distance, setDistance] = useState(10);
+  const saved = (distance * 0.17).toFixed(1); // Rough calc: Car ~0.17kg/km more than bike
+
+  return (
+    <section className="py-24 container mx-auto px-4">
+      <div className="rounded-[3rem] bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-100 dark:border-green-900 p-8 md:p-16 flex flex-col md:flex-row items-center gap-12">
+        <div className="flex-1 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-sm font-bold uppercase tracking-wider">
+            <Zap size={14} /> Impact Simulator
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground">See your potential impact instantly.</h2>
+          <p className="text-lg text-muted-foreground">Swapping a car trip for a bike ride makes a massive difference over time. Try it out!</p>
+        </div>
+
+        <div className="flex-1 w-full bg-card rounded-3xl p-8 border border-border shadow-xl">
+          <div className="space-y-8">
+            <div className="flex justify-between items-center text-lg font-medium">
+              <span className="flex items-center gap-2 text-muted-foreground"><Car size={20} /> Car Trip</span>
+              <ArrowRight className="text-muted-foreground/50" />
+              <span className="flex items-center gap-2 text-green-600"><Bike size={20} /> Cycling</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <label className="text-sm font-semibold">Distance: {distance} km</label>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="50"
+                value={distance}
+                onChange={(e) => setDistance(parseInt(e.target.value))}
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-green-500"
               />
-            ))}
-          </>
-        )}
+            </div>
 
-        {/* Subtle border glow */}
-        <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <div className="absolute inset-0 rounded-3xl border-2 border-primary/40" />
-        </div>
-
-        <div className="relative z-10">
-          <div className="w-24 h-24 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:scale-110 flex items-center justify-center mb-8 transition-all duration-300 shadow-lg group-hover:shadow-primary/40">
-            {icon}
+            <div className="pt-6 border-t border-border flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">CO2e Saved</p>
+                <p className="text-4xl font-bold text-green-500">{saved} <span className="text-xl text-foreground/50">kg</span></p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Equivalent to</p>
+                <p className="text-xl font-bold text-foreground">{(Number(saved) * 0.5).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">Trees/Year</span></p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-3xl font-bold text-foreground mb-4">{title}</h3>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            {description}
-          </p>
         </div>
       </div>
-    </motion.div>
-  );
+    </section>
+  )
 }
 
-// Step Component for How It Works
-function WorkStep({ number, title, description, isActive }: { number: number; title: string; description: string; isActive: boolean }) {
+// --- Footer ---
+function Footer() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -50 }}
-      animate={isActive ? { opacity: 1, x: 0 } : { opacity: 0.3, x: -20 }}
-      transition={{ duration: 0.8 }}
-      className="relative"
-    >
-      <div className="flex items-start gap-12">
-        <div className="relative flex-shrink-0">
-          <motion.div
-            className="w-28 h-28 rounded-full bg-primary flex items-center justify-center shadow-2xl shadow-primary/40"
-            animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-            transition={{ duration: 1, repeat: isActive ? Infinity : 0, repeatDelay: 2 }}
-          >
-            <span className="text-5xl font-bold text-white">{number}</span>
-          </motion.div>
-          {/* Particle effects */}
-          {isActive && [...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-3 h-3 rounded-full bg-primary"
-              style={{ top: '50%', left: '50%' }}
-              animate={{
-                y: [0, -120],
-                x: [(i - 2) * 25, (i - 2) * 40],
-                opacity: [1, 0],
-                scale: [1, 0],
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                delay: i * 0.2,
-                ease: "easeOut",
-              }}
-            />
-          ))}
-        </div>
-        <div className="flex-1 pt-4">
-          <h3 className="text-5xl font-bold text-foreground mb-6">{title}</h3>
-          <p className="text-2xl text-muted-foreground leading-relaxed max-w-2xl">
-            {description}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-export default function Home() {
-  const howItWorksRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: howItWorksRef,
-    offset: ["start end", "end start"]
-  });
-
-  const currentStep = useTransform(scrollYProgress, [0.1, 0.35, 0.55, 0.75], [1, 2, 3, 4]);
-
-  // Generate leaves with random properties
-  const leaves = [...Array(15)].map((_, i) => ({
-    delay: i * 0.8,
-    startX: Math.random() * 100,
-    duration: 8 + Math.random() * 6,
-  }));
-
-  // Generate breeze lines
-  const breezeLines = [...Array(6)].map((_, i) => ({
-    delay: i * 0.7,
-    y: 15 + i * 15,
-  }));
-
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative mx-auto max-w-7xl px-6 pt-40 pb-32 overflow-hidden min-h-screen flex items-center justify-center">
-        {/* Background Effects Container */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Falling Leaves */}
-          {leaves.map((leaf, i) => (
-            <FallingLeaf key={i} {...leaf} />
-          ))}
-
-          {/* Wind Breeze Lines */}
-          {breezeLines.map((line, i) => (
-            <BreezeLine key={i} {...line} />
-          ))}
-
-          {/* Revolving Earth Background */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] opacity-10"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            >
-              <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                <circle cx="100" cy="100" r="95" stroke="#10B981" strokeWidth="0.5" />
-                <circle cx="100" cy="100" r="80" fill="#10B981" opacity="0.3" />
-                <circle cx="100" cy="100" r="70" fill="#10B981" opacity="0.5" />
-                <path d="M60 70 Q80 50 110 65 L100 90 L75 85 Z" fill="#059669" opacity="0.8" />
-                <path d="M120 60 Q140 55 150 80 L135 100 L115 85 Z" fill="#059669" opacity="0.8" />
-                <path d="M50 100 Q70 90 90 105 L80 130 L55 120 Z" fill="#059669" opacity="0.8" />
-                <path d="M100 130 Q130 125 145 145 L125 155 L105 145 Z" fill="#059669" opacity="0.8" />
-              </svg>
-            </motion.div>
-          </div>
-
-          {/* Floating particles */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={`particle-${i}`}
-              className="absolute w-2 h-2 rounded-full bg-primary/30"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -40, 0],
-                x: [0, Math.random() * 20 - 10, 0],
-                opacity: [0.2, 0.6, 0.2],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 4 + Math.random() * 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Content */}
-        <div className="flex flex-col items-center text-center relative z-10">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-6xl md:text-8xl font-bold text-foreground mb-8 max-w-5xl leading-tight"
-          >
-            Track Your Carbon Footprint,{" "}
-            <span className="text-primary">Together</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl text-muted-foreground mb-16 max-w-3xl"
-          >
-            Join communities, participate in sustainability challenges, and make a real impact on the environment through collective action.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-3 h-16 px-12 rounded-full bg-primary text-primary-foreground text-lg font-bold transition-all duration-200 hover:bg-primary/90 hover:scale-105 shadow-xl shadow-primary/20"
-            >
-              Let's Make This World a Better Place
+    <footer className="bg-background border-t border-border pt-20 pb-10">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="col-span-1 md:col-span-2 space-y-6">
+            <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-green-600">
+              <Leaf className="w-8 h-8 fill-green-500/20" />
+              Greenly
             </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="mx-auto max-w-7xl px-6 py-32">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-24"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-            Everything You Need
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Comprehensive tools to measure, manage, and minimize your environmental impact for a sustainable future
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          <FeatureCard
-            delay={0}
-            icon={
-              <svg className="w-12 h-12 text-primary group-hover:text-white transition-colors duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            }
-            title="Track Activities"
-            description="Log daily activities and monitor carbon emissions across transportation, energy consumption, diet choices, and everyday habits with our intuitive tracking system."
-          />
-
-          <FeatureCard
-            delay={0.1}
-            icon={
-              <svg className="w-12 h-12 text-primary group-hover:text-white transition-colors duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            }
-            title="Join Communities"
-            description="Connect with neighbors, colleagues, and like-minded individuals for collective impact. Share tips, celebrate wins, and motivate each other towards greener living."
-          />
-
-          <FeatureCard
-            delay={0.2}
-            icon={
-              <svg className="w-12 h-12 text-primary group-hover:text-white transition-colors duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            }
-            title="Complete Challenges"
-            description="Participate in community challenges, earn rewards and badges, and compete for positive change. Every action counts towards building a sustainable future together."
-          />
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section ref={howItWorksRef} className="relative mx-auto max-w-7xl px-6 py-20">
-        {/* Sticky Header */}
-        <div className="sticky top-20 z-20 bg-white/95 backdrop-blur-sm py-12 mb-16">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <h2 className="text-5xl md:text-7xl font-bold text-foreground mb-6">
-              How It Works
-            </h2>
-            <p className="text-2xl text-muted-foreground max-w-3xl mx-auto">
-              Join the movement towards sustainability in four simple steps and be part of the solution for a greener tomorrow
+            <p className="text-muted-foreground max-w-sm text-lg">
+              Empowering individuals and communities to understand and reduce their carbon footprint for a sustainable future.
             </p>
-          </motion.div>
-        </div>
-
-        {/* Falling green breeze animation on scroll */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-10">
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-4 h-4 rounded-full"
-              style={{
-                left: `${10 + (i % 4) * 25}%`,
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-              }}
-              animate={{
-                y: ["0vh", "200vh"],
-                opacity: [0, 0.7, 0],
-                scale: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Steps Container - Centered */}
-        <div className="max-w-3xl mx-auto space-y-32 relative pt-8 min-h-[180vh]">
-
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.05, 0.15, 0.3], [0, 1, 1]) }}
-          >
-            <WorkStep
-              number={1}
-              title="Sign Up"
-              description="Create your free account in seconds and join thousands of eco-conscious individuals who are already making a real difference in their communities and beyond."
-              isActive={true}
-            />
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.25, 0.35, 0.5], [0, 1, 1]) }}
-          >
-            <WorkStep
-              number={2}
-              title="Track"
-              description="Log your daily activities with our intuitive interface. Monitor your carbon footprint in real-time across transportation, energy usage, food choices, and shopping habits."
-              isActive={true}
-            />
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.45, 0.55, 0.7], [0, 1, 1]) }}
-          >
-            <WorkStep
-              number={3}
-              title="Connect"
-              description="Join vibrant communities of like-minded individuals. Participate in exciting challenges, share your progress, and compete in friendly leaderboards with your neighbors and friends."
-              isActive={true}
-            />
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.65, 0.75, 0.9], [0, 1, 1]) }}
-          >
-            <WorkStep
-              number={4}
-              title="Impact"
-              description="Watch your collective impact grow exponentially. Visualize the real-world difference you're making together through beautiful dashboards, milestones, and community achievements."
-              isActive={true}
-            />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Sponsor Slider Section with Curved Layout */}
-      <section className="relative mx-auto max-w-7xl px-6 py-40 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Trusted By Leaders
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            Organizations committed to carbon neutrality
-          </p>
-        </motion.div>
-
-        <div className="relative flex flex-col items-center justify-center h-[500px]">
-          {/* Top Curved Slider */}
-          <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden">
-            <div className="relative w-full h-full" style={{ transform: 'perspective(1000px) rotateX(15deg)', transformOrigin: 'center bottom' }}>
-              <motion.div
-                animate={{ x: [0, -1500] }}
-                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className="absolute flex gap-8 whitespace-nowrap"
-              >
-                {[...Array(16)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl border border-primary/20 shadow-lg">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-2xl">{['🌱', '🌍', '♻️', '🌿'][i % 4]}</span>
-                    </div>
-                    <span className="text-lg font-semibold text-foreground">
-                      {['EcoVenture', 'GreenTech', 'CarbonZero', 'EarthFirst', 'CleanAir Co', 'SolarWave', 'BioPower', 'NatureCore'][i % 8]}
-                    </span>
-                  </div>
-                ))}
-              </motion.div>
+            <div className="flex gap-4">
+              <SocialLink href="#" icon={<Twitter size={20} />} />
+              <SocialLink href="#" icon={<Instagram size={20} />} />
+              <SocialLink href="#" icon={<Linkedin size={20} />} />
             </div>
           </div>
 
-          {/* Revolving Earth in Center */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="relative z-10 w-56 h-56 md:w-72 md:h-72"
-          >
-            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full filter drop-shadow-2xl">
-              {/* Outer glow */}
-              <circle cx="100" cy="100" r="98" stroke="#10B981" strokeWidth="1" opacity="0.3" />
-              <circle cx="100" cy="100" r="94" stroke="#10B981" strokeWidth="0.5" opacity="0.2" />
+          <div className="space-y-6">
+            <h4 className="font-bold text-lg">Platform</h4>
+            <ul className="space-y-4 text-muted-foreground">
+              <li><FooterLink href="/carbon-tracking">Carbon Tracker</FooterLink></li>
+              <li><FooterLink href="#">Community Challenges</FooterLink></li>
+              <li><FooterLink href="#">Leaderboards</FooterLink></li>
+              <li><FooterLink href="/signup">Get Started</FooterLink></li>
+            </ul>
+          </div>
 
-              {/* Earth base */}
-              <circle cx="100" cy="100" r="85" fill="url(#earthGradient)" />
+          <div className="space-y-6">
+            <h4 className="font-bold text-lg">Resources</h4>
+            <ul className="space-y-4 text-muted-foreground">
+              <li><FooterLink href="#">About Us</FooterLink></li>
+              <li><FooterLink href="#">Sustainability Guide</FooterLink></li>
+              <li><FooterLink href="#">Privacy Policy</FooterLink></li>
+              <li><FooterLink href="#">Terms of Service</FooterLink></li>
+            </ul>
+          </div>
+        </div>
 
-              {/* Continents */}
-              <path d="M55 65 Q75 45 100 55 L95 80 L65 75 Z" fill="#059669" />
-              <path d="M110 50 Q135 45 150 70 L140 95 L115 80 Z" fill="#059669" />
-              <path d="M45 95 Q65 85 85 100 L75 130 L50 120 Z" fill="#059669" />
-              <path d="M105 120 Q135 115 150 135 L130 150 L110 140 Z" fill="#059669" />
-              <path d="M130 90 Q145 100 140 120 L125 115 Z" fill="#047857" />
+        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-muted-foreground text-sm">© 2026 Greenly Inc. All rights reserved.</p>
+          <p className="flex items-center gap-1 text-sm text-muted-foreground">Made with <span className="text-green-500">💚</span> for the planet</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
 
-              {/* Highlight */}
-              <ellipse cx="75" cy="75" rx="25" ry="20" fill="white" opacity="0.15" />
+function SocialLink({ href, icon }: { href: string, icon: React.ReactNode }) {
+  return (
+    <Link href={href} className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-green-500 hover:border-green-500/50 hover:bg-green-500/10 transition-all duration-300">
+      {icon}
+    </Link>
+  )
+}
 
-              <defs>
-                <radialGradient id="earthGradient" cx="40%" cy="40%" r="60%">
-                  <stop offset="0%" stopColor="#34D399" />
-                  <stop offset="100%" stopColor="#059669" />
-                </radialGradient>
-              </defs>
-            </svg>
+function FooterLink({ href, children }: { href: string, children: React.ReactNode }) {
+  return (
+    <Link href={href} className="hover:text-green-500 transition-colors block w-fit">
+      {children}
+    </Link>
+  )
+}
 
-            {/* Orbiting elements */}
-            <motion.div
-              className="absolute w-full h-full"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-primary rounded-full shadow-lg" />
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary/70 rounded-full shadow-lg" />
-            </motion.div>
-          </motion.div>
+export default function Home2() {
+  return (
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-green-500/20 selection:text-green-900 overflow-x-hidden">
 
-          {/* Bottom Curved Slider */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 overflow-hidden">
-            <div className="relative w-full h-full" style={{ transform: 'perspective(1000px) rotateX(-15deg)', transformOrigin: 'center top' }}>
-              <motion.div
-                animate={{ x: [-1500, 0] }}
-                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className="absolute flex gap-8 whitespace-nowrap"
-              >
-                {[...Array(16)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl border border-primary/20 shadow-lg">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-2xl">{['🌲', '💧', '⚡', '🌻'][i % 4]}</span>
-                    </div>
-                    <span className="text-lg font-semibold text-foreground">
-                      {['TreePlant', 'AquaPure', 'WindFlow', 'SunHarvest', 'OceanSave', 'ForestGuard', 'EcoMate', 'GreenPath'][i % 8]}
-                    </span>
-                  </div>
+      <Hero />
+
+      {/* Main Features Bento Grid */}
+      <section className="container px-4 py-24 md:px-6 mx-auto">
+        <div className="flex flex-col items-center text-center mb-16 space-y-4">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Everything you need to go zero</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl">Powering your journey to sustainability with data, community, and gamification.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+
+          {/* Large Card: Tracker */}
+          <BentoCard className="md:col-span-2 md:row-span-2 relative flex flex-col justify-between group overflow-hidden bg-gradient-to-br from-card to-secondary/5">
+            <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+              <BarChart3 size={300} />
+            </div>
+
+            <div className="relative z-10 space-y-4 max-w-md">
+              <div className="p-3 w-fit rounded-xl bg-green-500/10 text-green-600 dark:text-green-400">
+                <Activity size={32} />
+              </div>
+              <h3 className="text-3xl font-bold">Precision Carbon Tracking</h3>
+              <p className="text-muted-foreground text-lg">
+                Log your daily activities across transport, diet, and energy. visualizing your impact has never been this beautiful.
+              </p>
+              <ul className="space-y-2 mt-4">
+                {['Real-time analytics', 'Smart categorized logging', 'Impact equivalents'].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm font-medium">
+                    <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    {item}
+                  </li>
                 ))}
-              </motion.div>
+              </ul>
+            </div>
+
+            {/* Mock Graph Visual */}
+            <div className="relative h-48 mt-8 w-full bg-background/50 rounded-xl border border-border/50 p-4 flex items-end gap-2 overflow-hidden shadow-inner">
+              {[40, 65, 45, 80, 55, 90, 70, 85].map((h, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ height: 0 }}
+                  whileInView={{ height: `${h}%` }}
+                  transition={{ duration: 1, delay: i * 0.1, ease: "backOut" }}
+                  className="flex-1 bg-green-500/80 rounded-t-sm hover:bg-green-400 transition-colors"
+                />
+              ))}
+            </div>
+          </BentoCard>
+
+          {/* Medium Card: Community */}
+          <BentoCard className="md:col-span-1 md:row-span-1 bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer" delay={0.2}>
+            <div className="flex justify-between items-start">
+              <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600">
+                <Users size={24} />
+              </div>
+              <ArrowRight className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold mt-4">Global Community</h3>
+            <p className="text-sm text-muted-foreground mt-2">Join 50k+ eco-warriors comparing progress.</p>
+
+            <div className="flex -space-x-3 mt-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                  U{i}
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full border-2 border-background bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                +2k
+              </div>
+            </div>
+          </BentoCard>
+
+          {/* Medium Card: Challenges */}
+          <BentoCard className="md:col-span-1 md:row-span-1 bg-yellow-500/5 hover:bg-yellow-500/10 transition-colors cursor-pointer" delay={0.3}>
+            <div className="flex justify-between items-start">
+              <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-600">
+                <Trophy size={24} />
+              </div>
+              <div className="px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-[10px] font-bold text-yellow-700 dark:text-yellow-300 uppercase">
+                New
+              </div>
+            </div>
+            <h3 className="text-xl font-bold mt-4">Monthly Challenges</h3>
+            <p className="text-sm text-muted-foreground mt-2">Compete, earn badges, and plant real trees.</p>
+
+            <div className="mt-6 w-full bg-background/50 h-2 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: "75%" }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="h-full bg-yellow-500 rounded-full"
+              />
+            </div>
+            <div className="flex justify-between text-xs mt-2 font-medium text-muted-foreground">
+              <span>Progress</span>
+              <span>75%</span>
+            </div>
+          </BentoCard>
+        </div>
+      </section>
+
+      {/* Impact Estimator */}
+      <ImpactEstimator />
+
+      {/* Ticker / Brands Section */}
+      <section className="py-12 border-y border-border/50 bg-muted/30 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8">Trusted by sustainable innovators</p>
+          <div className="relative flex overflow-x-hidden group">
+            <div className="animate-marquee whitespace-nowrap flex gap-16 items-center">
+              {['EcoLabs', 'GreenFuture', 'CleanTech', 'Sustainable.io', 'CarbonZero', 'FutureEarth', 'NatureFirst'].map((brand, i) => (
+                <span key={i} className="text-2xl font-bold text-muted-foreground/40 hover:text-green-500/60 transition-colors cursor-default">
+                  {brand}
+                </span>
+              ))}
+              {/* Duplicate for infinite loop */}
+              {['EcoLabs', 'GreenFuture', 'CleanTech', 'Sustainable.io', 'CarbonZero', 'FutureEarth', 'NatureFirst'].map((brand, i) => (
+                <span key={`dup-${i}`} className="text-2xl font-bold text-muted-foreground/40 hover:text-green-500/60 transition-colors cursor-default">
+                  {brand}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="mx-auto max-w-7xl px-6 py-32">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          <h2 className="text-5xl md:text-7xl font-bold text-foreground mb-8">
-            Ready to Make a Difference?
-          </h2>
-          <p className="text-2xl text-muted-foreground mb-16">
-            Join communities working together to create a sustainable future for generations to come
-          </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center gap-3 h-16 px-12 rounded-full bg-primary text-primary-foreground text-lg font-bold transition-all duration-200 hover:bg-primary/90 hover:scale-105 shadow-xl shadow-primary/20"
-          >
-            Let's Make the Earth Clean
-          </Link>
-        </motion.div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="flex flex-col items-center text-center gap-4">
-            <div className="flex items-center gap-2 text-primary font-bold text-xl">
-              <svg className="w-7 h-7 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="currentColor" opacity="0.15" />
-                <path d="M17 8c-4 0-7 3-7 7 0 1 .2 2 .5 3M17 8c0 4-3 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M17 8l-2 2M12 18V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <span>EcoMate</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Empowering communities for a sustainable future
-            </p>
-            <p className="text-xs text-muted-foreground">
-              © 2026 EcoMate. All rights reserved.
-            </p>
+      <section className="py-32 container mx-auto px-4 text-center">
+        <div className="max-w-3xl mx-auto space-y-8 p-12 rounded-[3rem] bg-gradient-to-b from-green-900/10 to-transparent border border-green-500/20">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tight">Ready to verify your impact?</h2>
+          <p className="text-xl text-muted-foreground">Join the platform that turns sustainability into a habit. Start for free today.</p>
+          <div className="flex justify-center gap-4">
+            <Link href="/signup" className="px-10 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition-all transform hover:-translate-y-1">
+              Start Your Journey
+            </Link>
           </div>
         </div>
-      </footer>
+      </section>
+
+      <Footer />
+
     </div>
   );
 }
