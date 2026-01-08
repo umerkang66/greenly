@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../trpc";
+import { publicProcedure, protectedProcedure, router } from "../trpc";
 
 export const testRouter = router({
     getTestMessage: publicProcedure
@@ -9,4 +9,12 @@ export const testRouter = router({
                 timestamp: new Date().toISOString(),
             };
         }),
+
+    getSecretMessage: protectedProcedure
+        .query(({ ctx }) => {
+            return {
+                message: `Hello ${ctx.session.user.name}, this is a protected message!`,
+                user: ctx.session.user // Safe to return? usually yes for demo
+            };
+        })
 });
