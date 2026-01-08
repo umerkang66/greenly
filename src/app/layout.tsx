@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
+import Providers from "@/components/Providers";
 
 export default function RootLayout({
   children,
@@ -36,8 +37,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <main className="pt-16">{children}</main>
+          <Providers>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1 pt-16">{children}</main>
+            </div>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>
