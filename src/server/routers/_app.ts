@@ -3,10 +3,12 @@ import { publicProcedure, router } from "../trpc";
 
 import { testRouter } from "./testing";
 import { carbonRouter } from "./carbon";
+import { communityRouter } from "./community";
 
 export const appRouter = router({
-    test: testRouter,
     carbon: carbonRouter,
+    test: testRouter,
+    community: communityRouter,
 });
 
 // export type definition of API

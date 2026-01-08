@@ -4,105 +4,118 @@ import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserDropdown } from "@/components/UserDropdown";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-import { Leaf, BarChart3 } from "lucide-react";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { Leaf, BarChart3, Users, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export function Header() {
     const { data: session, isPending } = useSession();
     const { scrollY } = useScroll();
     const [isScrolled, setIsScrolled] = useState(false);
+    const pathname = usePathname();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 20);
     });
 
+    const navLinks = [
+        { href: "/carbon-tracking", label: "Tracker", icon: BarChart3 },
+        { href: "/communities", label: "Communities", icon: Users },
+    ];
+
     return (
         <motion.header
-            className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "py-2" : "py-4"
+                }`}
         >
-            {/* Background Layer - Handles Dark Mode Correctly */}
-            <motion.div
-                className="absolute inset-0 border-b transition-all duration-500 pointer-events-none z-0"
-                initial={{ opacity: 0 }}
-                animate={{
-                    opacity: isScrolled ? 1 : 0,
-                    backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
-                }}
-                style={{
-                    backgroundColor: "var(--background)", // Uses theme variable
-                }}
-            >
-                {/* Overlay for tint to differentiate from plain background if needed */}
-                <div className="absolute inset-0 bg-background/80 dark:bg-background/80" />
-            </motion.div>
+            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                <motion.div
+                    className={`relative mx-auto flex items-center justify-between rounded-full border transition-all duration-300 px-4 sm:px-6 ${isScrolled
+                        ? "h-16 border-border/40 bg-background/70 dark:bg-background/30 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-white/5 dark:border-white/10"
+                        : "h-20 border-transparent bg-transparent"
+                        }`}
+                >
+                    {/* Left: Logo */}
+                    <div className="flex items-center">
+                        <Link
+                            href="/"
+                            className="group flex items-center gap-2"
+                        >
+                            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-green-500/20 to-teal-500/20 transition-all group-hover:from-green-500/30 group-hover:to-teal-500/30">
+                                <Leaf className="h-6 w-6 text-green-600 dark:text-green-400 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
+                            </div>
+                            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-700 via-emerald-600 to-teal-600 dark:from-green-400 dark:via-emerald-400 dark:to-teal-300">
+                                Greenly
+                            </span>
+                        </Link>
+                    </div>
 
-            {/* Border separate to handle subtle appearance */}
-            <motion.div
-                className="absolute bottom-0 left-0 right-0 h-[1px] bg-border transition-opacity duration-300 pointer-events-none z-0"
-                animate={{ opacity: isScrolled ? 1 : 0 }}
-            />
+                    {/* Center: Navigation Pill */}
+                    <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
+                        <div className="flex items-center p-1 rounded-full bg-secondary/30 border border-border/50 backdrop-blur-md">
+                            {navLinks.map((link) => {
+                                const isActive = pathname?.startsWith(link.href);
+                                const Icon = link.icon;
 
-            <nav className="relative z-10 mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-
-                {/* Left Side: Logo + Tracker Link */}
-                <div className="flex items-center gap-8">
-                    {/* Logo */}
-                    <Link
-                        href="/"
-                        className="group flex items-center gap-2 text-xl font-bold text-foreground transition-all duration-300"
-                    >
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
-                            <Leaf className="h-6 w-6 text-primary transition-transform duration-500 group-hover:rotate-45" />
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        className={`relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${isActive
+                                            ? "text-primary-foreground"
+                                            : "text-muted-foreground hover:text-foreground"
+                                            }`}
+                                    >
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="nav-pill"
+                                                className="absolute inset-0 bg-primary rounded-full shadow-sm"
+                                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                            />
+                                        )}
+                                        <span className="relative z-10 flex items-center gap-2">
+                                            <Icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : ''}`} />
+                                            {link.label}
+                                        </span>
+                                    </Link>
+                                );
+                            })}
                         </div>
-                        <span className="tracking-tight text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-500 dark:from-green-400 dark:to-teal-300">
-                            Greenly
-                        </span>
-                    </Link>
+                    </div>
 
-                    {/* Tracker Link (Visible/Premium) */}
-                    <Link
-                        href="/carbon-tracking"
-                        className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-all group relative overflow-hidden rounded-full hover:bg-primary/5"
-                    >
-                        <BarChart3 size={18} className="group-hover:text-green-500 transition-colors" />
-                        <span>Tracker</span>
-                        {/* Hover Underline Effect */}
-                        <span className="absolute inset-x-4 bottom-1 h-0.5 bg-green-500 scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
-                    </Link>
-                </div>
+                    {/* Right: Auth & Theme */}
+                    <div className="flex items-center gap-3">
+                        <ThemeToggle />
 
-                {/* Right Side: Auth Actions */}
-                <div className="flex items-center gap-2 sm:gap-4">
-                    <ThemeToggle />
+                        <div className="h-6 w-[1px] bg-border mx-1" />
 
-                    {isPending ? (
-                        <div className="h-9 w-24 animate-pulse rounded-full bg-muted" />
-                    ) : session ? (
-                        <div className="flex items-center gap-4">
+                        {isPending ? (
+                            <div className="h-10 w-24 animate-pulse rounded-full bg-muted" />
+                        ) : session ? (
                             <UserDropdown user={session.user} />
-                        </div>
-                    ) : (
-                        <>
-                            <Link
-                                href="/signin"
-                                className="hidden sm:flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:bg-secondary/50"
-                            >
-                                Sign In
-                            </Link>
-                            <Link
-                                href="/signup"
-                                className="group relative flex h-10 items-center justify-center overflow-hidden rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-105 hover:shadow-primary/40"
-                            >
-                                <span className="relative z-10 flex items-center gap-2">
-                                    Get Started
-                                </span>
-                                <div className="absolute inset-0 -z-10 translate-y-[100%] bg-gradient-to-r from-emerald-600 to-teal-600 transition-transform duration-300 group-hover:translate-y-0" />
-                            </Link>
-                        </>
-                    )}
-                </div>
-            </nav>
-        </motion.header>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href="/signin"
+                                    className="hidden sm:flex px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    className="relative inline-flex h-10 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+                                >
+                                    <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#A7F3D0_0%,#10B981_50%,#A7F3D0_100%)]" />
+                                    <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-5 py-1 text-sm font-medium text-white backdrop-blur-3xl transition-all hover:bg-slate-900">
+                                        Get Started
+                                    </span>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
+        </motion.header >
     );
 }
