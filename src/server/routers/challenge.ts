@@ -14,8 +14,8 @@ export const challengeRouter = router({
                 metric: z.string(),
                 type: z.string(),
                 communityId: z.string(),
-                startDate: z.date(),
-                endDate: z.date(),
+                startDate: z.string(),
+                endDate: z.string(),
                 isCustom: z.boolean().default(true),
             })
         )
@@ -37,6 +37,9 @@ export const challengeRouter = router({
                 });
             }
 
+            const startDate = new Date(input.startDate);
+            const endDate = new Date(input.endDate);
+
             const challenge = await prisma.challenge.create({
                 data: {
                     title: input.title,
@@ -46,10 +49,10 @@ export const challengeRouter = router({
                     type: input.type,
                     communityId: input.communityId,
                     createdById: ctx.session.user.id,
-                    startDate: input.startDate,
-                    endDate: input.endDate,
+                    startDate: startDate,
+                    endDate: endDate,
                     isCustom: input.isCustom,
-                    status: new Date() < input.startDate ? "UPCOMING" : "ACTIVE",
+                    status: new Date() < startDate ? "UPCOMING" : "ACTIVE",
                 },
             });
 

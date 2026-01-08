@@ -73,7 +73,7 @@ export default function ChallengeDetailPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background mt-[-70px]">
             {/* Hero Section */}
             <div className="relative h-[350px] lg:h-[450px] w-full overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900" />

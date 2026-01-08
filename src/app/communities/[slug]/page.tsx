@@ -224,7 +224,7 @@ export default function CommunitySlugPage() {
                             </h2>
                             {community.isAdmin && (
                                 <Link
-                                    href={`/challenges?create=true&communityId=${community.id}`}
+                                    href={`/challenges/create?communityId=${community.id}`}
                                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-all"
                                 >
                                     <Plus className="w-4 h-4" />
