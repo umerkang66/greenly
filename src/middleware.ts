@@ -12,7 +12,7 @@ export default async function authMiddleware(request: NextRequest) {
     });
 
     const isAuthPage = ["/signin", "/signup", "/verify-email", "/forgot-password", "/reset-password"].some(path => request.nextUrl.pathname.startsWith(path));
-    const isPublicPage = request.nextUrl.pathname === "/"; // Landing page
+    const isPublicPage = ["/", "/home2"].includes(request.nextUrl.pathname); // Landing pages
 
     if (!sessionData && !isAuthPage && !isPublicPage) {
         return NextResponse.redirect(new URL("/signin", request.url));

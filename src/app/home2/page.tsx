@@ -13,7 +13,15 @@ import {
     ArrowRight,
     Activity,
     BarChart3,
-    Globe
+    Globe,
+    Quote,
+    Send,
+    Instagram,
+    Twitter,
+    Linkedin,
+    Facebook,
+    Bike,
+    Car
 } from "lucide-react";
 
 // --- Hero Section Component ---
@@ -110,7 +118,129 @@ function BentoCard({ children, className, delay = 0 }: { children: React.ReactNo
     );
 }
 
-export default function Home() {
+// --- Impact Estimator ---
+function ImpactEstimator() {
+    const [distance, setDistance] = useState(10);
+    const saved = (distance * 0.17).toFixed(1); // Rough calc: Car ~0.17kg/km more than bike
+
+    return (
+        <section className="py-24 container mx-auto px-4">
+            <div className="rounded-[3rem] bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-100 dark:border-green-900 p-8 md:p-16 flex flex-col md:flex-row items-center gap-12">
+                <div className="flex-1 space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-sm font-bold uppercase tracking-wider">
+                        <Zap size={14} /> Impact Simulator
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground">See your potential impact instantly.</h2>
+                    <p className="text-lg text-muted-foreground">Swapping a car trip for a bike ride makes a massive difference over time. Try it out!</p>
+                </div>
+
+                <div className="flex-1 w-full bg-card rounded-3xl p-8 border border-border shadow-xl">
+                    <div className="space-y-8">
+                        <div className="flex justify-between items-center text-lg font-medium">
+                            <span className="flex items-center gap-2 text-muted-foreground"><Car size={20} /> Car Trip</span>
+                            <ArrowRight className="text-muted-foreground/50" />
+                            <span className="flex items-center gap-2 text-green-600"><Bike size={20} /> Cycling</span>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex justify-between">
+                                <label className="text-sm font-semibold">Distance: {distance} km</label>
+                            </div>
+                            <input
+                                type="range"
+                                min="1"
+                                max="50"
+                                value={distance}
+                                onChange={(e) => setDistance(parseInt(e.target.value))}
+                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-green-500"
+                            />
+                        </div>
+
+                        <div className="pt-6 border-t border-border flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-muted-foreground">CO2e Saved</p>
+                                <p className="text-4xl font-bold text-green-500">{saved} <span className="text-xl text-foreground/50">kg</span></p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm text-muted-foreground">Equivalent to</p>
+                                <p className="text-xl font-bold text-foreground">{(Number(saved) * 0.5).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">Trees/Year</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+// --- Footer ---
+function Footer() {
+    return (
+        <footer className="bg-background border-t border-border pt-20 pb-10">
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                    <div className="col-span-1 md:col-span-2 space-y-6">
+                        <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-green-600">
+                            <Leaf className="w-8 h-8 fill-green-500/20" />
+                            EcoMate
+                        </Link>
+                        <p className="text-muted-foreground max-w-sm text-lg">
+                            Empowering individuals and communities to understand and reduce their carbon footprint for a sustainable future.
+                        </p>
+                        <div className="flex gap-4">
+                            <SocialLink href="#" icon={<Twitter size={20} />} />
+                            <SocialLink href="#" icon={<Instagram size={20} />} />
+                            <SocialLink href="#" icon={<Linkedin size={20} />} />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="font-bold text-lg">Platform</h4>
+                        <ul className="space-y-4 text-muted-foreground">
+                            <li><FooterLink href="/carbon-tracking">Carbon Tracker</FooterLink></li>
+                            <li><FooterLink href="#">Community Challenges</FooterLink></li>
+                            <li><FooterLink href="#">Leaderboards</FooterLink></li>
+                            <li><FooterLink href="/signup">Get Started</FooterLink></li>
+                        </ul>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="font-bold text-lg">Resources</h4>
+                        <ul className="space-y-4 text-muted-foreground">
+                            <li><FooterLink href="#">About Us</FooterLink></li>
+                            <li><FooterLink href="#">Sustainability Guide</FooterLink></li>
+                            <li><FooterLink href="#">Privacy Policy</FooterLink></li>
+                            <li><FooterLink href="#">Terms of Service</FooterLink></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p className="text-muted-foreground text-sm">© 2026 EcoMate Inc. All rights reserved.</p>
+                    <p className="flex items-center gap-1 text-sm text-muted-foreground">Made with <span className="text-green-500">💚</span> for the planet</p>
+                </div>
+            </div>
+        </footer>
+    )
+}
+
+function SocialLink({ href, icon }: { href: string, icon: React.ReactNode }) {
+    return (
+        <Link href={href} className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-green-500 hover:border-green-500/50 hover:bg-green-500/10 transition-all duration-300">
+            {icon}
+        </Link>
+    )
+}
+
+function FooterLink({ href, children }: { href: string, children: React.ReactNode }) {
+    return (
+        <Link href={href} className="hover:text-green-500 transition-colors block w-fit">
+            {children}
+        </Link>
+    )
+}
+
+export default function Home2() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-green-500/20 selection:text-green-900 overflow-x-hidden">
 
@@ -215,6 +345,9 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Impact Estimator */}
+            <ImpactEstimator />
+
             {/* Ticker / Brands Section */}
             <section className="py-12 border-y border-border/50 bg-muted/30 overflow-hidden">
                 <div className="container mx-auto px-4">
@@ -249,6 +382,8 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+
+            <Footer />
 
         </div>
     );
