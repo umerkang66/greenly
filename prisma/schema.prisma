@@ -13,6 +13,7 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  points        Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -20,6 +21,8 @@ model User {
   accounts Account[]
   activities Activity[]
   memberships CommunityMember[]
+  badges UserBadge[]
+  challengeParticipations ChallengeParticipant[]
 }
 
 model Community {
@@ -32,6 +35,7 @@ model Community {
   ownerId     String
   
   members     CommunityMember[]
+  challenges  Challenge[]
   totalCarbonSaved Float @default(0)
 
   createdAt   DateTime @default(now())
@@ -91,15 +95,78 @@ model Verification {
 }
 
 model Activity {
+  id          String   @id @map("_id") @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  communityId String?  // Optional: link to community for community challenges
+  category    String   // "TRANSPORT", "DIET", "ENERGY"
+  action      String   // "Drive (Gas)", "Vegetarian Meal"
+  value       Float    // Input value (e.g. km, meals, kWh)
+  unit        String   // "km", "meal", "kWh"
+  carbon      Float    // kg CO2e
+  type        String   // "EMISSION" or "SAVING"
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+// Community Challenges
+model Challenge {
+  id          String   @id @map("_id") @default(cuid())
+  title       String
+  description String
+  goalValue   Float    // Target value (e.g., 500 for "500km cycling")
+  metric      String   // "km", "kg_co2", "activities", "meals"
+  type        String   // "CYCLING", "PLASTIC_REDUCTION", "CARBON_SAVING", "VEGAN_MEALS"
+  status      String   @default("ACTIVE") // "UPCOMING", "ACTIVE", "COMPLETED"
+  isCustom    Boolean  @default(false) // Admin-created vs predefined
+  
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  createdById String
+  
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  
+  participants ChallengeParticipant[]
+}
+
+// Track user participation in challenges
+model ChallengeParticipant {
+  id          String   @id @map("_id") @default(cuid())
+  userId      String
+  challengeId String
+  progress    Float    @default(0)
+  joinedAt    DateTime @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, challengeId])
+}
+
+// Badge definitions
+model Badge {
+  id          String   @id @map("_id") @default(cuid())
+  name        String   @unique
+  description String
+  icon        String   // Emoji or icon name
+  category    String   // "MILESTONE", "CHALLENGE", "STREAK", "COMMUNITY"
+  criteria    String   // JSON string describing requirements
+  pointsValue Int      @default(0)
+  
+  users       UserBadge[]
+}
+
+// User earned badges
+model UserBadge {
   id        String   @id @map("_id") @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category  String   // "TRANSPORT", "DIET", "ENERGY"
-  action    String   // "Drive (Gas)", "Vegetarian Meal"
-  value     Float    // Input value (e.g. km, meals, kWh)
-  unit      String   // "km", "meal", "kWh"
-  carbon    Float    // kg CO2e
-  type      String   // "EMISSION" or "SAVING"
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, badgeId])
 }

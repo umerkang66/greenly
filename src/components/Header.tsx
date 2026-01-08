@@ -5,7 +5,7 @@ import { useSession } from "@/lib/auth-client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserDropdown } from "@/components/UserDropdown";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Leaf, BarChart3, Users, Sparkles } from "lucide-react";
+import { Leaf, BarChart3, Users, Sparkles, Trophy, Target } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -22,6 +22,8 @@ export function Header() {
     const navLinks = [
         { href: "/carbon-tracking", label: "Tracker", icon: BarChart3 },
         { href: "/communities", label: "Communities", icon: Users },
+        { href: "/challenges", label: "Challenges", icon: Target },
+        { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     ];
 
     return (

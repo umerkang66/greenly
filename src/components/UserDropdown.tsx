@@ -54,7 +54,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 rounded-full border border-border bg-background p-1 pr-3 transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                className="flex items-center gap-2 rounded-full border border-emerald-600/40 bg-emerald-100 dark:bg-emerald-900/60 p-1 pr-3 transition-colors hover:bg-emerald-200 dark:hover:bg-emerald-800/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
             >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                     {user.image ? (
