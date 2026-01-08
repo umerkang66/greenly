@@ -4,19 +4,10 @@ import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserDropdown } from "@/components/UserDropdown";
 
 export function Header() {
     const { data: session, isPending } = useSession();
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-    const handleSignOut = async () => {
-        setIsLoggingOut(true);
-        try {
-            await signOut();
-        } finally {
-            setIsLoggingOut(false);
-        }
-    };
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -30,35 +21,24 @@ export function Header() {
                 </Link>
 
                 {/* Auth Actions */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <ThemeToggle />
 
                     {isPending ? (
                         <div className="h-8 w-20 animate-pulse rounded-lg bg-muted" />
                     ) : session ? (
-                        <>
-                            <span className="text-sm text-muted-foreground">
-                                {session.user?.name || session.user?.email}
-                            </span>
-                            <button
-                                onClick={handleSignOut}
-                                disabled={isLoggingOut}
-                                className="flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium text-foreground transition-all duration-300 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            >
-                                {isLoggingOut ? "Signing out..." : "Sign Out"}
-                            </button>
-                        </>
+                        <UserDropdown user={session.user} />
                     ) : (
                         <>
                             <Link
                                 href="/signin"
-                                className="flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground"
+                                className="flex h-9 items-center justify-center rounded-lg px-3 sm:px-4 text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground cursor-pointer"
                             >
                                 Sign In
                             </Link>
                             <Link
                                 href="/signup"
-                                className="flex h-9 items-center justify-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-all duration-300 hover:opacity-90 shadow-sm"
+                                className="flex h-9 items-center justify-center rounded-lg bg-primary px-3 sm:px-5 text-sm font-medium text-primary-foreground transition-all duration-300 hover:opacity-90 shadow-sm cursor-pointer"
                             >
                                 Sign Up
                             </Link>
