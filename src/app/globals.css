@@ -1,35 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Mode */
-  --background: #F4F4F0;
+  /* Light Mode - Pure White, Emerald Green, Black */
+  --background: #FFFFFF;
   --foreground: #000000;
-  --card: #ffffff;
+  --card: #FFFFFF;
   --card-foreground: #000000;
-  --popover: #ffffff;
+  --popover: #FFFFFF;
   --popover-foreground: #000000;
-  --primary: #000000;
-  --primary-foreground: #ffffff;
-  --muted: #e5e5e0;
-  --muted-foreground: #737373;
-  --border: #e5e5e0;
-  --input: #e5e5e0;
+  --primary: #10B981;
+  --primary-foreground: #FFFFFF;
+  --secondary: #3B82F6;
+  --secondary-foreground: #FFFFFF;
+  --accent: #10B981;
+  --accent-foreground: #000000;
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --destructive: #EF4444;
 }
 
 .dark {
-  /* Dark Mode */
+  /* Dark Mode - Black, Emerald Green, White */
   --background: #000000;
-  --foreground: #F4F4F0;
-  --card: #0a0a0a;
-  --card-foreground: #F4F4F0;
-  --popover: #0a0a0a;
-  --popover-foreground: #F4F4F0;
-  --primary: #ffffff;
+  --foreground: #FFFFFF;
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFFFFF;
+  --primary: #10B981;
   --primary-foreground: #000000;
-  --muted: #262626;
-  --muted-foreground: #a3a3a3;
+  --secondary: #3B82F6;
+  --secondary-foreground: #FFFFFF;
+  --accent: #10B981;
+  --accent-foreground: #000000;
+  --muted: #1A1A1A;
+  --muted-foreground: #A1A1AA;
   --border: #262626;
-  --input: #262626;
+  --input: #1A1A1A;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --destructive: #EF4444;
 }
 
 @theme inline {
@@ -41,13 +55,20 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jetbrains-mono);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 html {

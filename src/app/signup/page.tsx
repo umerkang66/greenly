@@ -66,7 +66,7 @@ export default function SignUpPage() {
         if (/[^a-zA-Z0-9]/.test(password)) strength++;
 
         const labels = ["", "Weak", "Fair", "Good", "Strong"];
-        const colors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
+        const colors = ["", "bg-destructive", "bg-warning", "bg-accent", "bg-success"];
         return { strength, label: labels[strength], color: colors[strength] };
     };
 
@@ -81,15 +81,21 @@ export default function SignUpPage() {
                     <div className="mb-8 text-center">
                         <Link
                             href="/"
-                            className="inline-block text-2xl font-bold text-foreground cursor-pointer"
+                            className="inline-flex items-center gap-2 text-2xl font-bold text-primary cursor-pointer"
                         >
-                            Greenly
+                            <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="currentColor" opacity="0.1"/>
+                                <path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M12 16v-4M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            <span>EcoMate</span>
                         </Link>
                         <h1 className="mt-4 text-2xl font-semibold text-foreground">
-                            Create your account
+                            Join EcoMate
                         </h1>
                         <p className="mt-2 text-muted-foreground">
-                            Get started with Greenly today
+                            Start your sustainability journey today
                         </p>
                     </div>
 
@@ -151,7 +157,7 @@ export default function SignUpPage() {
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
-                            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-600 dark:text-red-400">
+                            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
                                 {error}
                             </div>
                         )}
@@ -218,8 +224,8 @@ export default function SignUpPage() {
                                     </div>
                                     <p className="text-xs text-muted-foreground">
                                         Password strength: <span className={
-                                            passwordStrength.strength >= 3 ? "text-green-500" :
-                                                passwordStrength.strength >= 2 ? "text-yellow-500" : "text-red-500"
+                                            passwordStrength.strength >= 3 ? "text-success" :
+                                                passwordStrength.strength >= 2 ? "text-warning" : "text-destructive"
                                         }>{passwordStrength.label}</span>
                                     </p>
                                 </div>

@@ -64,15 +64,21 @@ export default function SignInPage() {
                     <div className="mb-8 text-center">
                         <Link
                             href="/"
-                            className="inline-block text-2xl font-bold text-foreground cursor-pointer"
+                            className="inline-flex items-center gap-2 text-2xl font-bold text-primary cursor-pointer"
                         >
-                            Greenly
+                            <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="currentColor" opacity="0.1"/>
+                                <path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M12 16v-4M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            <span>EcoMate</span>
                         </Link>
                         <h1 className="mt-4 text-2xl font-semibold text-foreground">
                             Welcome back
                         </h1>
                         <p className="mt-2 text-muted-foreground">
-                            Sign in to your account to continue
+                            Continue your sustainability journey
                         </p>
                     </div>
 
@@ -134,7 +140,7 @@ export default function SignInPage() {
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
-                            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-600 dark:text-red-400">
+                            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
                                 {error}
                             </div>
                         )}
