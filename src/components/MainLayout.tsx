@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const hideHeader = ["/forgot-password", "/verify-email"].some(path => pathname?.startsWith(path));
+    const hideHeader = false;
     const isAuthPage = ["/signin", "/signup", "/forgot-password", "/verify-email"].some(path => pathname?.startsWith(path));
 
     return (
