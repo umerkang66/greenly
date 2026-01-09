@@ -12,6 +12,7 @@ import {
     StreamVideo,
     StreamVideoClient,
     useCallStateHooks,
+    useCall,
     CallingState,
 } from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
@@ -59,6 +60,18 @@ export function MeetingRoom({ meetingId, token, apiKey, onLeave }: MeetingRoomPr
         };
     }, [session, token, apiKey, meetingId]);
 
+    useEffect(() => {
+        if (!call) return;
+
+        const unsubscribe = call.on('call.ended', () => {
+            onLeave();
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [call, onLeave]);
+
     if (!client || !call) {
         return (
             <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black text-white gap-4">
@@ -83,6 +96,7 @@ export function MeetingRoom({ meetingId, token, apiKey, onLeave }: MeetingRoomPr
 
 function MyUILayout({ onLeave }: { onLeave: (endForAll?: boolean) => void }) {
     const { useCallCallingState, useCallCreatedBy } = useCallStateHooks();
+    const call = useCall();
     const callingState = useCallCallingState();
     const createdBy = useCallCreatedBy();
     const { data: session } = useSession();
@@ -105,7 +119,10 @@ function MyUILayout({ onLeave }: { onLeave: (endForAll?: boolean) => void }) {
                     <CallStatsButton />
                     {isHost && (
                         <button
-                            onClick={() => onLeave(true)}
+                            onClick={async () => {
+                                await call?.endCall();
+                                onLeave(true);
+                            }}
                             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-colors flex items-center gap-2"
                         >
                             <AlertCircle className="w-4 h-4" />
