@@ -26,6 +26,10 @@ model User {
   
   receivedNotifications Notification[] @relation("ReceivedNotifications")
   sentNotifications     Notification[] @relation("SentNotifications")
+  
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
 }
 
 model Notification {
@@ -52,6 +56,7 @@ model Community {
   
   members     CommunityMember[]
   challenges  Challenge[]
+  posts       Post[]
   totalCarbonSaved Float @default(0)
 
   createdAt   DateTime @default(now())
@@ -185,4 +190,52 @@ model UserBadge {
   badge     Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   
   @@unique([userId, badgeId])
+}
+
+model Post {
+  id          String   @id @map("_id") @default(cuid())
+  content     String
+  type        String   @default("GENERAL") // "TIP", "RESOURCE", "ACHIEVEMENT", "GENERAL"
+  isAnonymous Boolean  @default(false)
+  imageUrl    String?
+  linkUrl     String?
+  
+  userId      String
+  communityId String
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  
+  comments    Comment[]
+  likes       Like[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @map("_id") @default(cuid())
+  content   String
+  
+  userId    String
+  postId    String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        String   @id @map("_id") @default(cuid())
+  userId    String
+  postId    String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
 }

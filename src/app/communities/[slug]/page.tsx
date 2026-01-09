@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useState } from "react";
+import { Feed } from "@/components/community/Feed";
 
 export default function CommunitySlugPage() {
     const params = useParams();
@@ -30,6 +31,7 @@ export default function CommunitySlugPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
     const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: "" });
+    const [activeTab, setActiveTab] = useState<"overview" | "feed">("overview");
 
     // Search users query
     const { data: searchResults, isFetching: isSearching } = trpc.community.searchUsers.useQuery(
@@ -207,226 +209,271 @@ export default function CommunitySlugPage() {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="max-w-7xl mx-auto px-6 py-8">
 
-                {/* Left Column */}
-                <div className="lg:col-span-2 space-y-10">
-
-                    {/* About Section */}
-                    <motion.section
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-8 rounded-3xl border border-border bg-card"
+                {/* Tabs */}
+                <div className="flex items-center gap-6 border-b border-border/50 mb-8 overflow-x-auto">
+                    <button
+                        onClick={() => setActiveTab("overview")}
+                        className={`pb-4 px-2 font-bold text-sm lg:text-base transition-all relative whitespace-nowrap ${activeTab === "overview"
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
                     >
-                        <h2 className="text-2xl font-bold mb-4">About</h2>
-                        <p className="text-lg text-muted-foreground leading-relaxed">
-                            {community.description}
-                        </p>
-                    </motion.section>
-
-                    {/* Impact Stats */}
-                    <motion.section
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="p-8 rounded-3xl border border-border bg-card"
-                    >
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <TrendingUp className="w-6 h-6 text-primary" />
-                            Community Impact
-                        </h2>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
-                                <Leaf className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-                                <div className="text-3xl font-bold text-primary">{community.totalCarbonSaved?.toFixed(0) || 0}</div>
-                                <div className="text-sm text-muted-foreground mt-1">kg CO2 Saved</div>
-                            </div>
-                            <div className="p-5 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 text-center">
-                                <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                                <div className="text-3xl font-bold text-primary">{activeChallenges.length}</div>
-                                <div className="text-sm text-muted-foreground mt-1">Active Challenges</div>
-                            </div>
-                            <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-center">
-                                <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                                <div className="text-3xl font-bold text-primary">{community.memberCount}</div>
-                                <div className="text-sm text-muted-foreground mt-1">Contributors</div>
-                            </div>
-                        </div>
-                    </motion.section>
-
-                    {/* Challenges Section */}
-                    <motion.section
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="space-y-6"
-                    >
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
-                                <Target className="w-6 h-6 text-primary" />
-                                Community Challenges
-                            </h2>
-                            {community.isAdmin && (
-                                <Link
-                                    href={`/challenges/create?communityId=${community.id}`}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-all"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    Create Challenge
-                                </Link>
-                            )}
-                        </div>
-
-                        {activeChallenges.length === 0 ? (
-                            <div className="p-10 rounded-3xl border-2 border-dashed border-border text-center bg-card/50">
-                                <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                                <h3 className="text-xl font-bold">No active challenges</h3>
-                                <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                                    {community.isAdmin
-                                        ? "Create a challenge to engage your community and track collective impact!"
-                                        : "Check back later for new challenges from this community."
-                                    }
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {activeChallenges.slice(0, 4).map((challenge: any, index: number) => {
-                                    const daysLeft = Math.ceil(
-                                        (new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                                    );
-                                    return (
-                                        <motion.div
-                                            key={challenge.id}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                        >
-                                            <Link
-                                                href={`/challenges/${challenge.id}`}
-                                                className="group block p-5 rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-lg transition-all"
-                                            >
-                                                <div className="flex items-start justify-between mb-3">
-                                                    <div className="p-2 rounded-xl bg-primary/10">
-                                                        <Flame className="w-5 h-5 text-primary" />
-                                                    </div>
-                                                    <span className="text-xs font-bold text-emerald-500 uppercase px-2 py-1 bg-emerald-500/10 rounded-full">Active</span>
-                                                </div>
-                                                <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">
-                                                    {challenge.title}
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                                    {challenge.description}
-                                                </p>
-                                                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50 text-sm text-muted-foreground">
-                                                    <span className="flex items-center gap-1.5">
-                                                        <Users className="w-4 h-4" />
-                                                        {challenge.participantCount}
-                                                    </span>
-                                                    <span className="flex items-center gap-1.5">
-                                                        <Clock className="w-4 h-4" />
-                                                        {daysLeft}d left
-                                                    </span>
-                                                </div>
-                                            </Link>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
+                        Overview
+                        {activeTab === "overview" && (
+                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                         )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("feed")}
+                        className={`pb-4 px-2 font-bold text-sm lg:text-base transition-all relative flex items-center gap-2 whitespace-nowrap ${activeTab === "feed"
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
+                    >
+                        <span className="flex items-center gap-1.5">
+                            Community Feed
+                            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] border border-emerald-500/20">New</span>
+                        </span>
+                        {activeTab === "feed" && (
+                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
+                    </button>
+                </div>
 
-                        {activeChallenges.length > 4 && (
-                            <Link
-                                href={`/challenges?communityId=${community.id}`}
-                                className="flex items-center justify-center gap-2 py-3 text-primary hover:underline font-medium"
+                {activeTab === "overview" ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+
+                        {/* Left Column */}
+                        <div className="lg:col-span-2 space-y-10">
+
+                            {/* About Section */}
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-8 rounded-3xl border border-border bg-card"
                             >
-                                View all {activeChallenges.length} challenges
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        )}
-                    </motion.section>
-                </div>
+                                <h2 className="text-2xl font-bold mb-4">About</h2>
+                                <p className="text-lg text-muted-foreground leading-relaxed">
+                                    {community.description}
+                                </p>
+                            </motion.section>
 
-                {/* Right Column */}
-                <div className="space-y-8">
-
-                    {/* Action Card */}
-                    {community.isMember && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="p-6 rounded-3xl border border-border bg-card"
-                        >
-                            <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
-                                <Check className="w-6 h-6 text-primary" />
-                                <span className="font-medium text-primary">You're a member!</span>
-                            </div>
-
-                            <div className="space-y-3">
-
-                                <button
-                                    onClick={handleLeave}
-                                    disabled={leaveMutation.isPending}
-                                    className="w-full py-3 rounded-xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition-all font-medium cursor-pointer"
-                                >
-                                    {leaveMutation.isPending ? "Leaving..." : "Leave Community"}
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Leaderboard */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="p-6 rounded-3xl border border-border bg-card"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-bold text-xl flex items-center gap-2">
-                                <Trophy className="w-5 h-5 text-yellow-500" />
-                                Top Contributors
-                            </h3>
-                            <Link href="/leaderboard" className="text-sm text-primary hover:underline">
-                                View all
-                            </Link>
-                        </div>
-
-                        <div className="space-y-3">
-                            {leaderboard?.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                    <p>No activity yet</p>
-                                </div>
-                            ) : (
-                                leaderboard?.slice(0, 5).map((member: any, index: number) => (
-                                    <div
-                                        key={member.userId}
-                                        className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${session?.user?.id === member.userId
-                                            ? "bg-primary/10 border border-primary/20"
-                                            : "hover:bg-muted/50"
-                                            }`}
-                                    >
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${index === 0 ? 'bg-yellow-500/20 text-yellow-600' :
-                                            index === 1 ? 'bg-gray-400/20 text-gray-600' :
-                                                index === 2 ? 'bg-orange-500/20 text-orange-600' :
-                                                    'bg-muted text-muted-foreground'
-                                            }`}>
-                                            {index < 3 ? (
-                                                <Medal className="w-5 h-5" />
-                                            ) : (
-                                                index + 1
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-medium truncate">{member.name}</div>
-                                            <div className="text-xs text-muted-foreground">{member.score} pts</div>
-                                        </div>
+                            {/* Impact Stats */}
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="p-8 rounded-3xl border border-border bg-card"
+                            >
+                                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                                    <TrendingUp className="w-6 h-6 text-primary" />
+                                    Community Impact
+                                </h2>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
+                                        <Leaf className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+                                        <div className="text-3xl font-bold text-primary">{community.totalCarbonSaved?.toFixed(0) || 0}</div>
+                                        <div className="text-sm text-muted-foreground mt-1">kg CO2 Saved</div>
                                     </div>
-                                ))
-                            )}
+                                    <div className="p-5 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 text-center">
+                                        <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+                                        <div className="text-3xl font-bold text-primary">{activeChallenges.length}</div>
+                                        <div className="text-sm text-muted-foreground mt-1">Active Challenges</div>
+                                    </div>
+                                    <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-center">
+                                        <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                                        <div className="text-3xl font-bold text-primary">{community.memberCount}</div>
+                                        <div className="text-sm text-muted-foreground mt-1">Contributors</div>
+                                    </div>
+                                </div>
+                            </motion.section>
+
+                            {/* Challenges Section */}
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="space-y-6"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                                        <Target className="w-6 h-6 text-primary" />
+                                        Community Challenges
+                                    </h2>
+                                    {community.isAdmin && (
+                                        <Link
+                                            href={`/challenges/create?communityId=${community.id}`}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-all"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            Create Challenge
+                                        </Link>
+                                    )}
+                                </div>
+
+                                {activeChallenges.length === 0 ? (
+                                    <div className="p-10 rounded-3xl border-2 border-dashed border-border text-center bg-card/50">
+                                        <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                                        <h3 className="text-xl font-bold">No active challenges</h3>
+                                        <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                                            {community.isAdmin
+                                                ? "Create a challenge to engage your community and track collective impact!"
+                                                : "Check back later for new challenges from this community."
+                                            }
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {activeChallenges.slice(0, 4).map((challenge: any, index: number) => {
+                                            const daysLeft = Math.ceil(
+                                                (new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                                            );
+                                            return (
+                                                <motion.div
+                                                    key={challenge.id}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: index * 0.05 }}
+                                                >
+                                                    <Link
+                                                        href={`/challenges/${challenge.id}`}
+                                                        className="group block p-5 rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-lg transition-all"
+                                                    >
+                                                        <div className="flex items-start justify-between mb-3">
+                                                            <div className="p-2 rounded-xl bg-primary/10">
+                                                                <Flame className="w-5 h-5 text-primary" />
+                                                            </div>
+                                                            <span className="text-xs font-bold text-emerald-500 uppercase px-2 py-1 bg-emerald-500/10 rounded-full">Active</span>
+                                                        </div>
+                                                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">
+                                                            {challenge.title}
+                                                        </h3>
+                                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                                            {challenge.description}
+                                                        </p>
+                                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50 text-sm text-muted-foreground">
+                                                            <span className="flex items-center gap-1.5">
+                                                                <Users className="w-4 h-4" />
+                                                                {challenge.participantCount}
+                                                            </span>
+                                                            <span className="flex items-center gap-1.5">
+                                                                <Clock className="w-4 h-4" />
+                                                                {daysLeft}d left
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {activeChallenges.length > 4 && (
+                                    <Link
+                                        href={`/challenges?communityId=${community.id}`}
+                                        className="flex items-center justify-center gap-2 py-3 text-primary hover:underline font-medium"
+                                    >
+                                        View all {activeChallenges.length} challenges
+                                        <ArrowRight className="w-4 h-4" />
+                                    </Link>
+                                )}
+                            </motion.section>
                         </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-8">
+
+                            {/* Action Card */}
+                            {community.isMember && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-6 rounded-3xl border border-border bg-card"
+                                >
+                                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
+                                        <Check className="w-6 h-6 text-primary" />
+                                        <span className="font-medium text-primary">You're a member!</span>
+                                    </div>
+
+                                    <div className="space-y-3">
+
+                                        <button
+                                            onClick={handleLeave}
+                                            disabled={leaveMutation.isPending}
+                                            className="w-full py-3 rounded-xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition-all font-medium cursor-pointer"
+                                        >
+                                            {leaveMutation.isPending ? "Leaving..." : "Leave Community"}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Leaderboard */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="p-6 rounded-3xl border border-border bg-card"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="font-bold text-xl flex items-center gap-2">
+                                        <Trophy className="w-5 h-5 text-yellow-500" />
+                                        Top Contributors
+                                    </h3>
+                                    <Link href="/leaderboard" className="text-sm text-primary hover:underline">
+                                        View all
+                                    </Link>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {leaderboard?.length === 0 ? (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                            <p>No activity yet</p>
+                                        </div>
+                                    ) : (
+                                        leaderboard?.slice(0, 5).map((member: any, index: number) => (
+                                            <div
+                                                key={member.userId}
+                                                className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${session?.user?.id === member.userId
+                                                    ? "bg-primary/10 border border-primary/20"
+                                                    : "hover:bg-muted/50"
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${index === 0 ? 'bg-yellow-500/20 text-yellow-600' :
+                                                    index === 1 ? 'bg-gray-400/20 text-gray-600' :
+                                                        index === 2 ? 'bg-orange-500/20 text-orange-600' :
+                                                            'bg-muted text-muted-foreground'
+                                                    }`}>
+                                                    {index < 3 ? (
+                                                        <Medal className="w-5 h-5" />
+                                                    ) : (
+                                                        index + 1
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-medium truncate">{member.name}</div>
+                                                    <div className="text-xs text-muted-foreground">{member.score} pts</div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                    >
+                        <Feed communityId={community.id} isMember={community.isMember} />
                     </motion.div>
-                </div>
+                )}
             </div>
             {/* Invite Modal */}
             {isInviteOpen && (

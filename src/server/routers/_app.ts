@@ -8,6 +8,8 @@ import { challengeRouter } from "./challenge";
 import { gamificationRouter } from "./gamification";
 import { leaderboardRouter } from "./leaderboard";
 import { notificationRouter } from "./notification";
+import { postRouter } from "./post";
+import { commentRouter } from "./comment";
 
 export const appRouter = router({
     carbon: carbonRouter,
@@ -17,6 +19,8 @@ export const appRouter = router({
     gamification: gamificationRouter,
     leaderboard: leaderboardRouter,
     notification: notificationRouter,
+    post: postRouter,
+    comment: commentRouter,
 });
 
 // export type definition of API
