@@ -22,7 +22,7 @@ interface MeetingRoomProps {
     meetingId: string;
     token: string;
     apiKey: string;
-    onLeave: () => void;
+    onLeave: (endForAll?: boolean) => void;
 }
 
 export function MeetingRoom({ meetingId, token, apiKey, onLeave }: MeetingRoomProps) {
@@ -61,7 +61,7 @@ export function MeetingRoom({ meetingId, token, apiKey, onLeave }: MeetingRoomPr
 
     if (!client || !call) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-black text-white gap-4">
+            <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black text-white gap-4">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
                 <p className="text-lg font-medium">Joining meeting...</p>
             </div>
@@ -69,23 +69,28 @@ export function MeetingRoom({ meetingId, token, apiKey, onLeave }: MeetingRoomPr
     }
 
     return (
-        <StreamVideo client={client}>
-            <StreamTheme className="h-screen w-full bg-black">
-                <StreamCall call={call}>
-                    <MyUILayout onLeave={onLeave} />
-                </StreamCall>
-            </StreamTheme>
-        </StreamVideo>
+        <div className="fixed inset-0 z-[100] bg-black">
+            <StreamVideo client={client}>
+                <StreamTheme className="h-full w-full">
+                    <StreamCall call={call}>
+                        <MyUILayout onLeave={onLeave} />
+                    </StreamCall>
+                </StreamTheme>
+            </StreamVideo>
+        </div>
     );
 }
 
-function MyUILayout({ onLeave }: { onLeave: () => void }) {
-    const { useCallCallingState } = useCallStateHooks();
+function MyUILayout({ onLeave }: { onLeave: (endForAll?: boolean) => void }) {
+    const { useCallCallingState, useCallCreatedBy } = useCallStateHooks();
     const callingState = useCallCallingState();
+    const createdBy = useCallCreatedBy();
+    const { data: session } = useSession();
+    const isHost = createdBy?.id === session?.user?.id;
 
     if (callingState !== CallingState.JOINED) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-black text-white gap-4">
+            <div className="flex flex-col items-center justify-center h-full bg-black text-white gap-4">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
                 <p className="text-lg font-medium">Connecting to room...</p>
             </div>
@@ -93,15 +98,24 @@ function MyUILayout({ onLeave }: { onLeave: () => void }) {
     }
 
     return (
-        <div className="h-screen w-full flex flex-col">
+        <div className="h-full w-full flex flex-col relative">
             <div className="flex-1 relative">
                 <SpeakerLayout participantsBarPosition="bottom" />
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 flex gap-2">
                     <CallStatsButton />
+                    {isHost && (
+                        <button
+                            onClick={() => onLeave(true)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-colors flex items-center gap-2"
+                        >
+                            <AlertCircle className="w-4 h-4" />
+                            End Meeting for All
+                        </button>
+                    )}
                 </div>
             </div>
 
-            <CallControls onLeave={onLeave} />
+            <CallControls onLeave={() => onLeave(false)} />
         </div>
     );
 }

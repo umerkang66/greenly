@@ -82,6 +82,15 @@ export default function CommunitySlugPage() {
 
     const utils = trpc.useUtils();
 
+    const endMeetingMutation = trpc.meeting.end.useMutation({
+        onSuccess: () => {
+            setActiveMeeting(null);
+            // Invalidate the meetings list query to reflect the ended meeting
+            utils.meeting.getByCommunity.invalidate();
+        }
+    });
+
+
     const handleInvite = (e: React.FormEvent) => {
         e.preventDefault();
         if (community && selectedUserIds.length > 0) {
@@ -136,13 +145,19 @@ export default function CommunitySlugPage() {
 
     const activeChallenges = challenges?.filter((c: any) => c.status === "ACTIVE") || [];
 
+
     if (activeMeeting) {
         return (
             <MeetingRoom
                 meetingId={activeMeeting.id}
                 token={activeMeeting.token}
                 apiKey={activeMeeting.apiKey}
-                onLeave={() => setActiveMeeting(null)}
+                onLeave={(endForAll) => {
+                    if (endForAll) {
+                        endMeetingMutation.mutate({ meetingId: activeMeeting.id });
+                    }
+                    setActiveMeeting(null);
+                }}
             />
         );
     }

@@ -124,4 +124,27 @@ export const meetingRouter = router({
             const token = generateUserToken(ctx.session.user.id);
             return { token, apiKey: process.env.STREAM_PUBLIC_KEY! };
         }),
+
+    end: protectedProcedure
+        .input(z.object({ meetingId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const meeting = await prisma.meeting.findUnique({
+                where: { id: input.meetingId }
+            });
+
+            if (!meeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+            }
+
+            if (meeting.createdById !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "Only the host can end the meeting" });
+            }
+
+            await prisma.meeting.update({
+                where: { id: input.meetingId },
+                data: { status: "COMPLETED" }
+            });
+
+            return { success: true };
+        }),
 });
