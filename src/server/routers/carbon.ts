@@ -11,6 +11,7 @@ const CARBON_FACTORS: Record<string, number> = {
     "transport-bus": 0.105,
     "transport-train": 0.041,
     "transport-bike": 0,
+    "transport-walk": 0,
 
     // Diet (per meal)
     "diet-meat-high": 2.5,  // Heavy meat meal
@@ -32,6 +33,7 @@ const CARBON_FACTORS: Record<string, number> = {
 const POINTS_PER_ACTIVITY: Record<string, number> = {
     // Eco-friendly transport
     "transport-bike": 15,
+    "transport-walk": 15,
     "transport-train": 10,
     "transport-bus": 8,
     "transport-car-ev": 5,
@@ -59,7 +61,7 @@ const POINTS_PER_ACTIVITY: Record<string, number> = {
 // Challenge type to activity mapping
 const CHALLENGE_TYPE_ACTIONS: Record<string, string[]> = {
     "CYCLING": ["transport-bike"],
-    "CARBON_SAVING": ["transport-bike", "transport-train", "transport-bus", "transport-car-ev", "diet-vegan", "diet-vegetarian", "diet-meat-low", "energy-solar"],
+    "CARBON_SAVING": ["transport-bike", "transport-walk", "transport-train", "transport-bus", "transport-car-ev", "diet-vegan", "diet-vegetarian", "diet-meat-low", "energy-solar", "waste-plastic-bottle", "waste-plastic-bag", "waste-packaging"],
     "VEGAN_MEALS": ["diet-vegan"],
     "PLASTIC_REDUCTION": ["waste-plastic-bottle", "waste-plastic-bag", "waste-packaging"],
 };

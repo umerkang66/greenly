@@ -7,7 +7,7 @@ import Link from "next/link";
 import {
     Trophy, Target, Users, Clock, ArrowLeft,
     Flame, Bike, Leaf, Zap, CheckCircle2,
-    TrendingUp, Medal, Calendar, Share2
+    TrendingUp, Medal, Calendar
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
@@ -290,10 +290,7 @@ export default function ChallengeDetailPage() {
                             </button>
                         )}
 
-                        <button className="w-full mt-4 py-3 rounded-xl border border-border hover:bg-muted transition-all font-medium flex items-center justify-center gap-2 cursor-pointer">
-                            <Share2 className="w-4 h-4" />
-                            Share Challenge
-                        </button>
+
                     </motion.div>
 
                     {/* Leaderboard */}

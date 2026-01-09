@@ -13,6 +13,8 @@ const CATEGORIES = {
         color: "text-blue-500",
         bg: "bg-blue-500/10",
         actions: [
+            { id: "transport-bike", label: "Cycling (Bike)", unit: "km" },
+            { id: "transport-walk", label: "Walking", unit: "km" },
             { id: "transport-car-gas", label: "Car (Gas/Diesel)", unit: "km" },
             { id: "transport-car-ev", label: "Car (Electric)", unit: "km" },
             { id: "transport-bus", label: "Bus Ride", unit: "km" },
@@ -135,6 +137,9 @@ export default function CarbonTrackingPage() {
     const logMutation = trpc.carbon.logActivity.useMutation({
         onSuccess: () => {
             utils.carbon.invalidate();
+            utils.leaderboard.invalidate();
+            utils.challenge.invalidate();
+            utils.gamification.invalidate();
             setValue("");
             setIsSubmitting(false);
         }
@@ -192,13 +197,32 @@ export default function CarbonTrackingPage() {
                     <p className="text-lg text-muted-foreground mt-2">Monitor, analyze, and reduce your environmental footprint.</p>
                 </div>
                 <div className="text-right hidden md:block">
-                    <p className="text-sm font-medium text-muted-foreground">Current user</p>
-                    <p className="text-base font-semibold">{session.user.name}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Your Impact Score</p>
+                    <div className="flex items-center justify-end gap-2 text-emerald-600 dark:text-emerald-400">
+                        <span className="text-2xl font-bold">{statsQuery.data?.totalPoints || 0}</span>
+                        <span className="text-sm font-semibold">Points</span>
+                    </div>
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Total Points - New Card */}
+                <div className="relative group overflow-hidden p-6 rounded-3xl bg-card border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span className="text-6xl">🏆</span>
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Points</p>
+                    {statsQuery.isLoading ? (
+                        <div className="h-10 w-32 bg-muted/50 animate-pulse rounded mt-2" />
+                    ) : (
+                        <div className="mt-2 flex items-baseline gap-2">
+                            <span className="text-4xl font-bold text-amber-500">{statsQuery.data?.totalPoints || 0}</span>
+                            <span className="text-sm font-medium text-muted-foreground">pts</span>
+                        </div>
+                    )}
+                </div>
+
                 {/* Total Emissions */}
                 <div className="relative group overflow-hidden p-6 rounded-3xl bg-card border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -210,7 +234,7 @@ export default function CarbonTrackingPage() {
                     ) : (
                         <div className="mt-2 flex items-baseline gap-2">
                             <span className="text-4xl font-bold text-foreground">{statsQuery.data?.totalEmitted.toFixed(1) || "0.0"}</span>
-                            <span className="text-sm font-medium text-muted-foreground">kg CO2e</span>
+                            <span className="text-sm font-medium text-muted-foreground">kg</span>
                         </div>
                     )}
                 </div>
@@ -226,7 +250,7 @@ export default function CarbonTrackingPage() {
                     ) : (
                         <div className="mt-2 flex items-baseline gap-2">
                             <span className="text-4xl font-bold text-green-600 dark:text-green-400">{statsQuery.data?.totalSaved.toFixed(1) || "0.0"}</span>
-                            <span className="text-sm font-medium text-muted-foreground">kg CO2e</span>
+                            <span className="text-sm font-medium text-muted-foreground">kg</span>
                         </div>
                     )}
                 </div>
@@ -236,17 +260,14 @@ export default function CarbonTrackingPage() {
                     <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-30 transition-opacity">
                         <span className="text-6xl">🌳</span>
                     </div>
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="p-3 bg-white/50 dark:bg-green-500/20 backdrop-blur-sm rounded-2xl shadow-sm">
-                            <span className="text-2xl">🌳</span>
-                        </div>
+                    <div className="flex items-center gap-3 relative z-10 pt-1">
                         <div>
-                            <p className="text-sm font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Impact Equivalence</p>
+                            <p className="text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Equivalence</p>
                             {statsQuery.isLoading ? (
                                 <div className="h-8 w-24 bg-green-200/50 dark:bg-green-800/50 animate-pulse rounded mt-1" />
                             ) : (
-                                <p className="text-3xl font-bold text-green-900 dark:text-white">
-                                    {statsQuery.data?.treesNeeded || 0} <span className="text-lg font-medium opacity-80 text-green-800 dark:text-green-200">Trees</span>
+                                <p className="text-2xl font-bold text-green-900 dark:text-white mt-1">
+                                    {statsQuery.data?.treesNeeded || 0} <span className="text-sm font-medium opacity-80 text-green-800 dark:text-green-200">Trees</span>
                                 </p>
                             )}
                         </div>
