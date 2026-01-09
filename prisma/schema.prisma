@@ -31,6 +31,26 @@ model User {
   comments    Comment[]
   likes       Like[]
   chatMessages ChatMessage[]
+  createdMeetings Meeting[]
+}
+
+
+model Meeting {
+  id          String   @id @map("_id") @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  duration    Int      @default(60) // minutes
+  status      String   @default("SCHEDULED") // "SCHEDULED", "ACTIVE", "COMPLETED", "CANCELLED"
+  
+  communityId String
+  createdById String
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Notification {
@@ -59,6 +79,7 @@ model Community {
   challenges  Challenge[]
   posts       Post[]
   chatMessages ChatMessage[]
+  meetings    Meeting[]
   totalCarbonSaved Float @default(0)
 
   createdAt   DateTime @default(now())

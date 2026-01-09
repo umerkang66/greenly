@@ -14,6 +14,10 @@ import { useState, useEffect } from "react";
 import { Feed } from "@/components/community/Feed";
 import { CarbonForecast } from "@/components/community/CarbonForecast";
 import { CommunityChat } from "@/components/community/CommunityChat";
+import { MeetingList } from "@/components/community/MeetingList";
+import { CreateMeetingModal } from "@/components/community/CreateMeetingModal";
+import { MeetingRoom } from "@/components/community/MeetingRoom";
+import { Video } from "lucide-react";
 
 export default function CommunitySlugPage() {
     const params = useParams();
@@ -36,12 +40,14 @@ export default function CommunitySlugPage() {
     const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: "" });
 
     // Check URL for tab parameter (from notification click)
-    const tabFromUrl = searchParams?.get("tab") as "overview" | "feed" | "chat" | null;
-    const [activeTab, setActiveTab] = useState<"overview" | "feed" | "chat">(tabFromUrl || "overview");
+    const tabFromUrl = searchParams?.get("tab") as "overview" | "feed" | "chat" | "meetings" | null;
+    const [activeTab, setActiveTab] = useState<"overview" | "feed" | "chat" | "meetings">(tabFromUrl || "overview");
+    const [isCreateMeetingOpen, setIsCreateMeetingOpen] = useState(false);
+    const [activeMeeting, setActiveMeeting] = useState<{ id: string; token: string; apiKey: string } | null>(null);
 
     // Update tab when URL changes
     useEffect(() => {
-        if (tabFromUrl && ["overview", "feed", "chat"].includes(tabFromUrl)) {
+        if (tabFromUrl && ["overview", "feed", "chat", "meetings"].includes(tabFromUrl)) {
             setActiveTab(tabFromUrl);
         }
     }, [tabFromUrl]);
@@ -61,6 +67,20 @@ export default function CommunitySlugPage() {
         },
         onError: (err) => setInviteStatus({ type: 'error', message: err.message })
     });
+
+    const startMeetingMutation = trpc.meeting.start.useMutation({
+        onSuccess: (data, variables) => {
+            setActiveMeeting({ id: variables.meetingId, token: data.token, apiKey: data.apiKey });
+        }
+    });
+
+    const joinMeetingMutation = trpc.meeting.join.useMutation({
+        onSuccess: (data, variables) => {
+            setActiveMeeting({ id: variables.meetingId, token: data.token, apiKey: data.apiKey });
+        }
+    });
+
+    const refetchMeetings = trpc.meeting.getByCommunity.useUtils().meeting.getByCommunity;
 
     const handleInvite = (e: React.FormEvent) => {
         e.preventDefault();
@@ -115,6 +135,17 @@ export default function CommunitySlugPage() {
     };
 
     const activeChallenges = challenges?.filter((c: any) => c.status === "ACTIVE") || [];
+
+    if (activeMeeting) {
+        return (
+            <MeetingRoom
+                meetingId={activeMeeting.id}
+                token={activeMeeting.token}
+                apiKey={activeMeeting.apiKey}
+                onLeave={() => setActiveMeeting(null)}
+            />
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background mt-[-70px]">
@@ -266,6 +297,21 @@ export default function CommunitySlugPage() {
                             <span className="px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-[10px] border border-blue-500/20">Live</span>
                         </span>
                         {activeTab === "chat" && (
+                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("meetings")}
+                        className={`pb-4 px-2 font-bold text-sm lg:text-base transition-all relative flex items-center gap-2 whitespace-nowrap ${activeTab === "meetings"
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
+                    >
+                        <span className="flex items-center gap-1.5">
+                            <Video className="w-4 h-4" />
+                            Meetings
+                        </span>
+                        {activeTab === "meetings" && (
                             <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                         )}
                     </button>
@@ -503,7 +549,7 @@ export default function CommunitySlugPage() {
                     >
                         <Feed communityId={community.id} isMember={community.isMember} />
                     </motion.div>
-                ) : (
+                ) : activeTab === "chat" ? (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -525,6 +571,20 @@ export default function CommunitySlugPage() {
                                 </button>
                             </div>
                         )}
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                    >
+                        <MeetingList
+                            communityId={community.id}
+                            isAdmin={community.isAdmin}
+                            onStartMeeting={(id) => startMeetingMutation.mutate({ meetingId: id })}
+                            onJoinMeeting={(id) => joinMeetingMutation.mutate({ meetingId: id })}
+                            onCreateClick={() => setIsCreateMeetingOpen(true)}
+                        />
                     </motion.div>
                 )}
             </div>
@@ -645,6 +705,13 @@ export default function CommunitySlugPage() {
                     </div>
                 </div>
             )}
+
+            <CreateMeetingModal
+                communityId={community.id}
+                isOpen={isCreateMeetingOpen}
+                onClose={() => setIsCreateMeetingOpen(false)}
+                onSuccess={() => refetchMeetings.invalidate()}
+            />
         </div>
     );
 }
