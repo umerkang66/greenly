@@ -110,9 +110,19 @@ export const carbonRouter = router({
 
             // === AWARD POINTS ===
             const pointsToAward = POINTS_PER_ACTIVITY[input.action] ?? 2;
+
+            // Fetch current points to ensure robust update
+            const currentUser = await prisma.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { points: true }
+            });
+
+            const currentPoints = currentUser?.points || 0;
+            const newPoints = currentPoints + pointsToAward;
+
             await prisma.user.update({
                 where: { id: ctx.session.user.id },
-                data: { points: { increment: pointsToAward } },
+                data: { points: newPoints },
             });
 
             // === UPDATE CHALLENGE PROGRESS ===

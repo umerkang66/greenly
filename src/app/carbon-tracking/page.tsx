@@ -132,7 +132,7 @@ export default function CarbonTrackingPage() {
 
     // tRPC
     const utils = trpc.useContext();
-    const statsQuery = trpc.carbon.getStats.useQuery(undefined, { enabled: !!session });
+    const statsQuery = trpc.carbon.getStats.useQuery(undefined, { enabled: !!session, refetchOnMount: true });
     const historyQuery = trpc.carbon.getHistory.useQuery(undefined, { enabled: !!session });
     const logMutation = trpc.carbon.logActivity.useMutation({
         onSuccess: () => {

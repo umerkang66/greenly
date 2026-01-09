@@ -18,20 +18,22 @@ export default function LeaderboardPage() {
     const { data: session } = useSession();
 
     const { data: individualLeaderboard, isLoading: loadingIndividual } =
-        trpc.leaderboard.getIndividual.useQuery({ limit: 50 });
+        trpc.leaderboard.getIndividual.useQuery({ limit: 50 }, { refetchOnMount: true });
 
     const { data: communityLeaderboard, isLoading: loadingCommunities } =
-        trpc.leaderboard.getCommunities.useQuery({ limit: 50 });
+        trpc.leaderboard.getCommunities.useQuery({ limit: 50 }, { refetchOnMount: true });
 
     const { data: userRank } = trpc.leaderboard.getUserRank.useQuery(
         { userId: session?.user?.id || "" },
-        { enabled: !!session?.user?.id }
+        { enabled: !!session?.user?.id, refetchOnMount: true }
     );
 
     const tabs = [
         { key: "individual" as Tab, label: "Top Users", icon: Users },
         { key: "communities" as Tab, label: "Top Communities", icon: Target },
     ];
+
+    const totalPointsCalculated = individualLeaderboard?.reduce((acc: number, curr: any) => acc + (curr.points || 0), 0) || 0;
 
     return (
         <div className="min-h-screen bg-background pt-24 px-6 pb-20">
@@ -76,7 +78,7 @@ export default function LeaderboardPage() {
                                 <div className="w-px h-10 bg-white/20" />
                                 <div className="text-left">
                                     <div className="text-sm text-white/60">Points</div>
-                                    <div className="text-3xl font-bold text-white">{userRank.points}</div>
+                                    <div className="text-3xl font-bold text-white">{userRank.points || 0}</div>
                                 </div>
                                 <div className="w-px h-10 bg-white/20" />
                                 <div className="text-left">
@@ -92,7 +94,7 @@ export default function LeaderboardPage() {
                         {[
                             { label: "Total Users", value: individualLeaderboard?.length || 0, icon: Users },
                             { label: "Communities", value: communityLeaderboard?.length || 0, icon: Target },
-                            { label: "Making Impact", value: "∞", icon: Leaf },
+                            { label: "Total Points", value: totalPointsCalculated.toLocaleString(), icon: Leaf },
                         ].map((stat, i) => (
                             <div key={i} className="p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
                                 <stat.icon className="w-5 h-5 text-white/60 mb-2" />
