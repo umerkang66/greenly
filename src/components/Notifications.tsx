@@ -51,9 +51,13 @@ export function Notifications() {
                 className="relative p-2 rounded-full hover:bg-accent/50 transition-colors"
             >
                 <Bell className={`w-5 h-5 ${hasUnread ? "text-primary fill-primary/20" : "text-muted-foreground"}`} />
-                {hasUnread && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background animate-pulse" />
-                )}
+                <span className={`absolute -bottom-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full border-2 border-background ${
+                    hasUnread 
+                        ? "bg-red-500 text-white animate-pulse" 
+                        : "bg-muted text-muted-foreground"
+                }`}>
+                    {data?.unreadCount ?? 0}
+                </span>
             </button>
 
             {isOpen && (
