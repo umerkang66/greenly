@@ -8,6 +8,7 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Leaf, BarChart3, Users, Sparkles, Trophy, Target } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { Notifications } from "@/components/Notifications";
 
 export function Header() {
     const { data: session, isPending } = useSession();
@@ -86,9 +87,12 @@ export function Header() {
                         </div>
                     </div>
 
+
+
                     {/* Right: Auth & Theme */}
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
+                        {session && <Notifications />}
 
                         <div className="h-6 w-[1px] bg-green-300 dark:bg-white/20 mx-1" />
 

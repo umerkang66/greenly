@@ -147,6 +147,18 @@ export const communityRouter = router({
                 },
             });
 
+            const community = await prisma.community.findUnique({
+                where: { id: input.communityId },
+            });
+
+            if (!community) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Community not found" });
+            }
+
+            if (community.isPrivate) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "This community is private. You must be invited." });
+            }
+
             if (existing) {
                 throw new TRPCError({ code: "CONFLICT", message: "Already a member" });
             }
@@ -160,6 +172,93 @@ export const communityRouter = router({
             });
 
             return { success: true };
+        }),
+
+    searchUsers: protectedProcedure
+        .input(z.object({ query: z.string().min(1) }))
+        .query(async ({ input }) => {
+            return await prisma.user.findMany({
+                where: {
+                    OR: [
+                        { name: { contains: input.query, mode: "insensitive" } },
+                        { email: { contains: input.query, mode: "insensitive" } }
+                    ]
+                },
+                take: 5,
+                select: { id: true, name: true, image: true, email: true }
+            });
+        }),
+
+    inviteUser: protectedProcedure
+        .input(z.object({ communityId: z.string(), userIds: z.array(z.string()) }))
+        .mutation(async ({ ctx, input }) => {
+            const community = await prisma.community.findUnique({
+                where: { id: input.communityId },
+            });
+            if (!community) throw new TRPCError({ code: "NOT_FOUND" });
+
+            // Check permission
+            const member = await prisma.communityMember.findUnique({
+                where: { userId_communityId: { userId: ctx.session.user.id, communityId: input.communityId } }
+            });
+
+            if (!member && community.ownerId !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "Must be a member to invite" });
+            }
+
+            // Create notifications for all
+            await prisma.notification.createMany({
+                data: input.userIds.map(userId => ({
+                    userId: userId,
+                    senderId: ctx.session.user.id,
+                    type: "COMMUNITY_INVITE",
+                    data: JSON.stringify({
+                        communityId: community.id,
+                        communityName: community.name,
+                        communitySlug: community.slug
+                    }),
+                }))
+            });
+
+            return { success: true };
+        }),
+
+    acceptInvite: protectedProcedure
+        .input(z.object({ notificationId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const notification = await prisma.notification.findUnique({
+                where: { id: input.notificationId, userId: ctx.session.user.id }
+            });
+            if (!notification || notification.type !== "COMMUNITY_INVITE") {
+                throw new TRPCError({ code: "BAD_REQUEST" });
+            }
+
+            const data = JSON.parse(notification.data);
+            const communityId = data.communityId;
+
+            // Add member (bypass private check)
+            // Check if already member
+            const existing = await prisma.communityMember.findUnique({
+                where: { userId_communityId: { userId: ctx.session.user.id, communityId } }
+            });
+
+            if (!existing) {
+                await prisma.communityMember.create({
+                    data: {
+                        userId: ctx.session.user.id,
+                        communityId: communityId,
+                        role: "MEMBER"
+                    }
+                });
+            }
+
+            // Mark read
+            await prisma.notification.update({
+                where: { id: input.notificationId },
+                data: { isRead: true }
+            });
+
+            return { slug: data.communitySlug };
         }),
 
     leave: protectedProcedure

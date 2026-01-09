@@ -23,6 +23,22 @@ model User {
   memberships CommunityMember[]
   badges UserBadge[]
   challengeParticipations ChallengeParticipant[]
+  
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[] @relation("SentNotifications")
+}
+
+model Notification {
+  id        String   @id @map("_id") @default(cuid())
+  userId    String   // Recipient
+  senderId  String?  // Sender
+  type      String   // "COMMUNITY_INVITE"
+  data      String   // JSON string
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  sender    User?    @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
 }
 
 model Community {

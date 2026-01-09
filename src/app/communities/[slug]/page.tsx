@@ -10,6 +10,7 @@ import {
     TrendingUp, Medal, Leaf, Share2, Settings
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { useState } from "react";
 
 export default function CommunitySlugPage() {
     const params = useParams();
@@ -24,6 +25,40 @@ export default function CommunitySlugPage() {
     const leaveMutation = trpc.community.leave.useMutation({
         onSuccess: () => refetch()
     });
+
+    const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+    const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: "" });
+
+    // Search users query
+    const { data: searchResults, isFetching: isSearching } = trpc.community.searchUsers.useQuery(
+        { query: searchQuery },
+        { enabled: searchQuery.length > 0 }
+    );
+
+    const inviteMutation = trpc.community.inviteUser.useMutation({
+        onSuccess: () => {
+            setSearchQuery("");
+            setSelectedUserIds([]);
+            setInviteStatus({ type: 'success', message: "Invitations sent successfully!" });
+            setTimeout(() => setInviteStatus({ type: null, message: "" }), 3000);
+        },
+        onError: (err) => setInviteStatus({ type: 'error', message: err.message })
+    });
+
+    const handleInvite = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (community && selectedUserIds.length > 0) {
+            inviteMutation.mutate({ communityId: community.id, userIds: selectedUserIds });
+        }
+    };
+
+    const toggleUserSelection = (userId: string) => {
+        setSelectedUserIds(prev =>
+            prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+        );
+    };
 
     const { data: leaderboard } = trpc.community.getLeaderboard.useQuery({ communityId: community?.id || "" }, {
         enabled: !!community?.id
@@ -125,11 +160,20 @@ export default function CommunitySlugPage() {
                                 </div>
                             </div>
 
+
+
                             <div className="flex items-center gap-3">
                                 {community.isMember ? (
                                     <>
                                         <button
-                                            className="px-6 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-all flex items-center gap-2 cursor-pointer"
+                                            onClick={() => setIsInviteOpen(true)}
+                                            className="px-5 py-3 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-900/20"
+                                        >
+                                            <UserPlus className="w-5 h-5" />
+                                            Invite
+                                        </button>
+                                        <button
+                                            className="px-6 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-all flex items-center gap-2 cursor-default"
                                         >
                                             <Check className="w-5 h-5 text-emerald-400" />
                                             Joined
@@ -318,10 +362,7 @@ export default function CommunitySlugPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <button className="w-full py-3 rounded-xl border border-border hover:bg-muted transition-all font-medium flex items-center justify-center gap-2 cursor-pointer">
-                                    <Share2 className="w-4 h-4" />
-                                    Invite Friends
-                                </button>
+
                                 <button
                                     onClick={handleLeave}
                                     disabled={leaveMutation.isPending}
@@ -387,6 +428,123 @@ export default function CommunitySlugPage() {
                     </motion.div>
                 </div>
             </div>
+            {/* Invite Modal */}
+            {isInviteOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-card text-card-foreground rounded-3xl p-6 w-full max-w-lg border border-border shadow-2xl relative flex flex-col max-h-[85vh]">
+                        <button
+                            onClick={() => setIsInviteOpen(false)}
+                            className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors z-10"
+                        >
+                            <Plus className="w-5 h-5 rotate-45" />
+                        </button>
+
+                        <div className="text-center mb-6 shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-3">
+                                <UserPlus className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <h2 className="text-xl font-bold">Invite Friends</h2>
+                            <p className="text-sm text-muted-foreground mt-1">Search and select users to invite to {community.name}.</p>
+                        </div>
+
+                        {inviteStatus.message && (
+                            <div className={`mb-4 p-3 rounded-lg text-sm font-medium text-center animate-in fade-in slide-in-from-top-2 ${inviteStatus.type === 'success' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-red-500/10 text-red-600 border border-red-500/20'
+                                }`}>
+                                {inviteStatus.message}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleInvite} className="flex-1 flex flex-col min-h-0">
+                            {/* Search Input */}
+                            <div className="mb-4 shrink-0">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full px-4 py-3 pl-11 rounded-xl border border-border bg-muted/30 focus:bg-background focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
+                                        placeholder="Search by name or email..."
+                                        autoFocus
+                                    />
+                                    <Users className="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                                </div>
+                            </div>
+
+                            {/* Search Results */}
+                            <div className="flex-1 overflow-y-auto min-h-[200px] border rounded-xl border-border bg-muted/10 p-2 mb-4">
+                                {isSearching ? (
+                                    <div className="flex justify-center p-8">
+                                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                    </div>
+                                ) : searchQuery.length > 0 && searchResults?.length === 0 ? (
+                                    <div className="text-center p-8 text-muted-foreground text-sm">
+                                        No users found
+                                    </div>
+                                ) : searchResults ? (
+                                    <div className="space-y-1">
+                                        {searchResults.map((user: any) => (
+                                            <div
+                                                key={user.id}
+                                                onClick={() => toggleUserSelection(user.id)}
+                                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedUserIds.includes(user.id)
+                                                    ? "bg-emerald-500/10 border border-emerald-500/30"
+                                                    : "hover:bg-muted"
+                                                    }`}
+                                            >
+                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedUserIds.includes(user.id)
+                                                    ? "bg-emerald-500 border-emerald-500 text-white"
+                                                    : "border-muted-foreground/30 bg-background"
+                                                    }`}>
+                                                    {selectedUserIds.includes(user.id) && <Check className="w-3.5 h-3.5" />}
+                                                </div>
+
+                                                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                                                    {user.image ? (
+                                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="text-xs font-bold">{user.name?.[0]?.toUpperCase()}</span>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0 text-left">
+                                                    <div className="font-medium text-sm truncate">{user.name}</div>
+                                                    <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center p-8 text-muted-foreground text-sm flex flex-col items-center gap-2">
+                                        <Users className="w-8 h-8 opacity-20" />
+                                        <p>Type to search users...</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex gap-3 pt-2 shrink-0 border-t border-border mt-auto">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsInviteOpen(false)}
+                                    className="px-4 py-3 rounded-xl hover:bg-muted font-bold transition-colors text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={inviteMutation.isPending || selectedUserIds.length === 0}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/20 transition-all disabled:opacity-50 disabled:shadow-none ml-auto text-sm"
+                                >
+                                    {inviteMutation.isPending
+                                        ? "Sending..."
+                                        : `Invite ${selectedUserIds.length > 0 ? `(${selectedUserIds.length})` : ""}`
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
