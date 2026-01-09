@@ -1,22 +1,24 @@
 "use client";
 
 import { trpc } from "@/lib/trpc";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     Users, Globe, Lock, Shield, UserPlus, Check, Trophy,
     Target, Plus, ArrowRight, Clock, Flame, ArrowLeft,
-    TrendingUp, Medal, Leaf, Share2, Settings
+    TrendingUp, Medal, Leaf, Share2, Settings, MessageCircle
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Feed } from "@/components/community/Feed";
 import { CarbonForecast } from "@/components/community/CarbonForecast";
+import { CommunityChat } from "@/components/community/CommunityChat";
 
 export default function CommunitySlugPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: session } = useSession();
     const slug = params?.slug as string;
 
@@ -32,7 +34,17 @@ export default function CommunitySlugPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
     const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: "" });
-    const [activeTab, setActiveTab] = useState<"overview" | "feed">("overview");
+
+    // Check URL for tab parameter (from notification click)
+    const tabFromUrl = searchParams?.get("tab") as "overview" | "feed" | "chat" | null;
+    const [activeTab, setActiveTab] = useState<"overview" | "feed" | "chat">(tabFromUrl || "overview");
+
+    // Update tab when URL changes
+    useEffect(() => {
+        if (tabFromUrl && ["overview", "feed", "chat"].includes(tabFromUrl)) {
+            setActiveTab(tabFromUrl);
+        }
+    }, [tabFromUrl]);
 
     // Search users query
     const { data: searchResults, isFetching: isSearching } = trpc.community.searchUsers.useQuery(
@@ -238,6 +250,22 @@ export default function CommunitySlugPage() {
                             <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] border border-emerald-500/20">New</span>
                         </span>
                         {activeTab === "feed" && (
+                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("chat")}
+                        className={`pb-4 px-2 font-bold text-sm lg:text-base transition-all relative flex items-center gap-2 whitespace-nowrap ${activeTab === "chat"
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
+                    >
+                        <span className="flex items-center gap-1.5">
+                            <MessageCircle className="w-4 h-4" />
+                            Chat
+                            <span className="px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-[10px] border border-blue-500/20">Live</span>
+                        </span>
+                        {activeTab === "chat" && (
                             <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                         )}
                     </button>
@@ -467,13 +495,36 @@ export default function CommunitySlugPage() {
                             </motion.div>
                         </div>
                     </div>
-                ) : (
+                ) : activeTab === "feed" ? (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                     >
                         <Feed communityId={community.id} isMember={community.isMember} />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                    >
+                        {community.isMember ? (
+                            <CommunityChat communityId={community.id} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-[400px] text-center p-8 rounded-3xl border border-border bg-card">
+                                <MessageCircle className="w-12 h-12 text-muted-foreground/30 mb-4" />
+                                <h3 className="text-lg font-bold mb-2">Join to Chat</h3>
+                                <p className="text-muted-foreground text-sm mb-4">You need to be a member to participate in the community chat.</p>
+                                <button
+                                    onClick={handleJoin}
+                                    disabled={joinMutation.isPending}
+                                    className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                                >
+                                    {joinMutation.isPending ? "Joining..." : "Join Community"}
+                                </button>
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </div>

@@ -30,6 +30,7 @@ model User {
   posts       Post[]
   comments    Comment[]
   likes       Like[]
+  chatMessages ChatMessage[]
 }
 
 model Notification {
@@ -57,6 +58,7 @@ model Community {
   members     CommunityMember[]
   challenges  Challenge[]
   posts       Post[]
+  chatMessages ChatMessage[]
   totalCarbonSaved Float @default(0)
 
   createdAt   DateTime @default(now())
@@ -238,4 +240,16 @@ model Like {
   createdAt DateTime @default(now())
 
   @@unique([userId, postId])
+}
+
+model ChatMessage {
+  id          String   @id @map("_id") @default(cuid())
+  content     String
+  communityId String
+  userId      String
+  mentions    String[] // Array of user IDs mentioned
+  createdAt   DateTime @default(now())
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

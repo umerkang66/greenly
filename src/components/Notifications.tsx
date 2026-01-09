@@ -51,11 +51,10 @@ export function Notifications() {
                 className="relative p-2 rounded-full hover:bg-accent/50 transition-colors"
             >
                 <Bell className={`w-5 h-5 ${hasUnread ? "text-primary fill-primary/20" : "text-muted-foreground"}`} />
-                <span className={`absolute -bottom-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full border-2 border-background ${
-                    hasUnread 
-                        ? "bg-red-500 text-white animate-pulse" 
-                        : "bg-muted text-muted-foreground"
-                }`}>
+                <span className={`absolute -bottom-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full border-2 border-background ${hasUnread
+                    ? "bg-red-500 text-white animate-pulse"
+                    : "bg-muted text-muted-foreground"
+                    }`}>
                     {data?.unreadCount ?? 0}
                 </span>
             </button>
@@ -79,26 +78,58 @@ export function Notifications() {
                                 let payload: any = {};
                                 try { payload = JSON.parse(n.data); } catch (e) { }
 
+                                // Determine notification content based on type
+                                const isMention = n.type === "CHAT_MENTION";
+                                const isInvite = n.type === "COMMUNITY_INVITE";
+
+                                const handleNotificationClick = () => {
+                                    if (isMention && payload.communitySlug) {
+                                        markReadMutation.mutate({ id: n.id });
+                                        setIsOpen(false);
+                                        router.push(`/communities/${payload.communitySlug}?tab=chat`);
+                                    }
+                                };
+
                                 return (
-                                    <div key={n.id} className={`p-4 hover:bg-muted/50 transition-colors ${!n.isRead ? "bg-primary/5" : ""}`}>
+                                    <div
+                                        key={n.id}
+                                        className={`p-4 hover:bg-muted/50 transition-colors ${!n.isRead ? "bg-primary/5" : ""} ${isMention ? "cursor-pointer" : ""}`}
+                                        onClick={isMention ? handleNotificationClick : undefined}
+                                    >
                                         <div className="flex items-start gap-3">
-                                            <div className="p-2 rounded-full bg-primary/10 text-primary shrink-0">
+                                            <div className={`p-2 rounded-full shrink-0 ${isMention ? "bg-blue-500/10 text-blue-500" : "bg-primary/10 text-primary"}`}>
                                                 <Mail className="w-4 h-4" />
                                             </div>
                                             <div className="flex-1 space-y-1 min-w-0">
-                                                <p className="text-sm leading-snug">
-                                                    <span className="font-semibold text-foreground">{n.sender?.name || "Someone"}</span> invited you to join <span className="font-semibold text-primary">{payload.communityName}</span>
-                                                </p>
+                                                {isMention ? (
+                                                    <p className="text-sm leading-snug">
+                                                        <span className="font-semibold text-foreground">{payload.senderName || n.sender?.name || "Someone"}</span> mentioned you in <span className="font-semibold text-blue-500">{payload.communityName}</span>
+                                                        {payload.messagePreview && (
+                                                            <span className="block text-xs text-muted-foreground mt-1 truncate">"{payload.messagePreview}"</span>
+                                                        )}
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-sm leading-snug">
+                                                        <span className="font-semibold text-foreground">{n.sender?.name || "Someone"}</span> invited you to join <span className="font-semibold text-primary">{payload.communityName}</span>
+                                                    </p>
+                                                )}
                                                 <p className="text-xs text-muted-foreground">{new Date(n.createdAt).toLocaleDateString()}</p>
 
-                                                {n.type === "COMMUNITY_INVITE" && !n.isRead && (
+                                                {isInvite && !n.isRead && (
                                                     <button
-                                                        onClick={() => handleAccept(n.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleAccept(n.id);
+                                                        }}
                                                         disabled={acceptMutation.isPending}
                                                         className="mt-2 text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 w-full justify-center shadow-sm shadow-primary/20"
                                                     >
                                                         {acceptMutation.isPending ? "Joining..." : <>Join Community <Check className="w-3 h-3" /></>}
                                                     </button>
+                                                )}
+
+                                                {isMention && (
+                                                    <span className="text-xs text-blue-500 font-medium">Click to view chat →</span>
                                                 )}
                                             </div>
                                         </div>

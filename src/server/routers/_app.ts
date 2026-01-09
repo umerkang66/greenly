@@ -11,6 +11,7 @@ import { postRouter } from "./post";
 import { commentRouter } from "./comment";
 import { ecoCoachRouter } from "./ecoCoach";
 import { scannerRouter } from "./scanner";
+import { chatRouter } from "./chat";
 
 export const appRouter = router({
     carbon: carbonRouter,
@@ -23,6 +24,7 @@ export const appRouter = router({
     comment: commentRouter,
     ecoCoach: ecoCoachRouter,
     scanner: scannerRouter,
+    chat: chatRouter,
 });
 
 // export type definition of API
