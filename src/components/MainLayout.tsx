@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
+import { EcoCoach } from "@/components/EcoCoach";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -14,6 +15,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             <main className={`flex-1 ${!isAuthPage ? "pt-16" : ""}`}>
                 {children}
             </main>
+            <EcoCoach />
         </div>
     );
 }
