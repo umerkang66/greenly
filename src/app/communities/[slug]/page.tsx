@@ -12,6 +12,7 @@ import {
 import { useSession } from "@/lib/auth-client";
 import { useState } from "react";
 import { Feed } from "@/components/community/Feed";
+import { CarbonForecast } from "@/components/community/CarbonForecast";
 
 export default function CommunitySlugPage() {
     const params = useParams();
@@ -385,6 +386,7 @@ export default function CommunitySlugPage() {
 
                         {/* Right Column */}
                         <div className="space-y-8">
+                            <CarbonForecast slug={community.slug} />
 
                             {/* Action Card */}
                             {community.isMember && (

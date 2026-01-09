@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { prisma } from "@/lib/db";
 import { TRPCError } from "@trpc/server";
@@ -306,5 +307,100 @@ export const communityRouter = router({
                 image: m.user.image,
                 score: Math.floor(Math.random() * 1000) // Mock score for MVP visual
             })).sort((a: any, b: any) => b.score - a.score);
+        }),
+
+    getCarbonForecast: protectedProcedure
+        .input(z.object({ slug: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const community = await prisma.community.findUnique({
+                where: { slug: input.slug },
+                include: {
+                    _count: {
+                        select: { members: true }
+                    },
+                    challenges: {
+                        where: { status: "ACTIVE" },
+                        include: {
+                            _count: { select: { participants: true } }
+                        }
+                    }
+                }
+            });
+
+            if (!community) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Community not found" });
+            }
+
+            // check membership
+            const member = await prisma.communityMember.findUnique({
+                where: {
+                    userId_communityId: {
+                        userId: ctx.session.user.id,
+                        communityId: community.id
+                    }
+                }
+            });
+
+            if (!member && community.isPrivate) {
+                throw new TRPCError({ code: "FORBIDDEN", message: "Must be a member to view forecast" });
+            }
+
+            // Gather Engagement Metrics (Last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const recentPostsCount = await prisma.post.count({
+                where: {
+                    communityId: community.id,
+                    createdAt: { gte: thirtyDaysAgo }
+                }
+            });
+
+            const recentCommentsCount = await prisma.comment.count({
+                where: {
+                    post: { communityId: community.id },
+                    createdAt: { gte: thirtyDaysAgo }
+                }
+            });
+
+            // Prepare Prompt
+            const challengeSummaries = community.challenges.map(c =>
+                `- Challenge: "${c.title}" (${c.type}). Goal: ${c.goalValue} ${c.metric}. Participants: ${c._count.participants}`
+            ).join("\n");
+
+            const prompt = `
+Analyze the community "${community.name}" to forecast potential carbon reduction for the next 30 days.
+
+Data:
+- Members: ${community._count.members}
+- Total Carbon Saved All-Time: ${community.totalCarbonSaved} kg CO2e
+- Recent Engagement (Last 30d): ${recentPostsCount} posts, ${recentCommentsCount} comments.
+- Active Challenges:
+${challengeSummaries || "None"}
+
+Task:
+1. Estimate the engagement level (Low/Medium/High).
+2. Forecast the collective carbon reduction (in kg CO2e) for the next 30 days.
+3. Provide a brief 2-3 sentence explanation citing the data.
+
+Format the output clearly.
+            `;
+
+            try {
+                const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+                const result = await model.generateContent(prompt);
+                const response = result.response;
+                const text = response.text();
+
+                return { forecast: text };
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Failed to generate forecast. Please try again later."
+                });
+            }
         })
 });

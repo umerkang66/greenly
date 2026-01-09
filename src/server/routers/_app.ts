@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
 
-import { testRouter } from "./testing";
 import { carbonRouter } from "./carbon";
 import { communityRouter } from "./community";
 import { challengeRouter } from "./challenge";
@@ -13,7 +12,6 @@ import { commentRouter } from "./comment";
 
 export const appRouter = router({
     carbon: carbonRouter,
-    test: testRouter,
     community: communityRouter,
     challenge: challengeRouter,
     gamification: gamificationRouter,
