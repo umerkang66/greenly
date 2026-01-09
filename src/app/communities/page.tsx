@@ -54,7 +54,7 @@ export default function CommunitiesPage() {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="relative z-10 mt-10 grid grid-cols-3 gap-4">
+                    <div className="relative z-10 mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                             { label: "Communities", value: totalCommunities, icon: Target },
                             { label: "Total Members", value: totalMembers, icon: Users },

@@ -171,13 +171,13 @@ export default function CommunitySlugPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/40 to-transparent" />
 
                 {/* Back Button */}
-                <div className="absolute top-32 left-6 lg:left-12 z-20">
+                <div className="absolute top-24 left-6 lg:left-12 z-20">
                     <Link
                         href="/communities"
                         className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-sm font-medium">All Communities</span>
+                        <span className="text-sm font-medium hidden sm:inline">All Communities</span>
                     </Link>
                 </div>
 
@@ -199,7 +199,7 @@ export default function CommunitySlugPage() {
                                     </span>
                                 </div>
 
-                                <h1 className="text-4xl lg:text-5xl font-bold text-white">
+                                <h1 className="text-3xl lg:text-5xl font-bold text-white">
                                     {community.name}
                                 </h1>
 
@@ -343,7 +343,7 @@ export default function CommunitySlugPage() {
                             <motion.section
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-8 rounded-3xl border border-border bg-card"
+                                className="p-4 sm:p-6 lg:p-8 rounded-3xl border border-border bg-card"
                             >
                                 <h2 className="text-2xl font-bold mb-4">About</h2>
                                 <p className="text-lg text-muted-foreground leading-relaxed">
@@ -356,13 +356,13 @@ export default function CommunitySlugPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="p-8 rounded-3xl border border-border bg-card"
+                                className="p-4 sm:p-6 lg:p-8 rounded-3xl border border-border bg-card"
                             >
                                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                                     <TrendingUp className="w-6 h-6 text-primary" />
                                     Community Impact
                                 </h2>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
                                         <Leaf className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
                                         <div className="text-3xl font-bold text-primary">{community.totalCarbonSaved?.toFixed(0) || 0}</div>

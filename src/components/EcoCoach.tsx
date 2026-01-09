@@ -95,7 +95,7 @@ export function EcoCoach() {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed bottom-24 right-6 z-50 w-[380px] max-h-[600px] bg-card border border-border rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+                        className="fixed bottom-24 right-6 z-50 w-full max-w-[calc(100vw-3rem)] sm:max-w-[380px] max-h-[600px] bg-card border border-border rounded-3xl shadow-2xl overflow-hidden flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
@@ -131,8 +131,8 @@ export function EcoCoach() {
                                 >
                                     <div
                                         className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === "user"
-                                                ? "bg-primary text-primary-foreground rounded-br-sm"
-                                                : "bg-muted text-foreground rounded-bl-sm"
+                                            ? "bg-primary text-primary-foreground rounded-br-sm"
+                                            : "bg-muted text-foreground rounded-bl-sm"
                                             }`}
                                     >
                                         <div className="whitespace-pre-wrap">{msg.content}</div>

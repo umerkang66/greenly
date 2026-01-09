@@ -74,7 +74,7 @@ export default function ChallengesPage() {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="relative z-10 mt-10 grid grid-cols-3 gap-4">
+                    <div className="relative z-10 mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                             { label: "Active Challenges", value: challenges?.filter((c: any) => c.status === "ACTIVE").length || 0, icon: Flame },
                             { label: "Total Participants", value: challenges?.reduce((sum: number, c: any) => sum + c.participantCount, 0) || 0, icon: Users },

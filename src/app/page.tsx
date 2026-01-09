@@ -43,7 +43,7 @@ function Hero() {
 
 
         <motion.h1
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground max-w-5xl"
+          className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground max-w-5xl"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}

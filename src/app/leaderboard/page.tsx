@@ -90,7 +90,7 @@ export default function LeaderboardPage() {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="relative z-10 mt-10 grid grid-cols-3 gap-4">
+                    <div className="relative z-10 mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                             { label: "Total Users", value: individualLeaderboard?.length || 0, icon: Users },
                             { label: "Communities", value: communityLeaderboard?.length || 0, icon: Target },
@@ -136,7 +136,7 @@ export default function LeaderboardPage() {
                             <>
                                 {/* Top 3 Podium */}
                                 {individualLeaderboard && individualLeaderboard.length >= 3 && (
-                                    <div className="grid grid-cols-3 gap-4 mb-8">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                                         {[1, 0, 2].map((podiumIndex) => {
                                             const user = individualLeaderboard[podiumIndex];
                                             if (!user) return null;

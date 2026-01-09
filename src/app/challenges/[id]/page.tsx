@@ -81,13 +81,13 @@ export default function ChallengeDetailPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/40 to-transparent" />
 
                 {/* Back Button */}
-                <div className="absolute top-32 left-6 lg:left-12 z-20">
+                <div className="absolute top-24 left-6 lg:left-12 z-20">
                     <Link
                         href="/challenges"
                         className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        <span className="text-sm font-medium">All Challenges</span>
+                        <span className="text-sm font-medium hidden sm:inline">All Challenges</span>
                     </Link>
                 </div>
 
@@ -112,7 +112,7 @@ export default function ChallengeDetailPage() {
                             </Link>
                         </div>
 
-                        <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+                        <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">
                             {challenge.title}
                         </h1>
 
@@ -144,7 +144,7 @@ export default function ChallengeDetailPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-8 rounded-3xl border border-border bg-card"
+                        className="p-4 sm:p-6 lg:p-8 rounded-3xl border border-border bg-card"
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold">Challenge Progress</h2>
@@ -188,7 +188,7 @@ export default function ChallengeDetailPage() {
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="p-4 rounded-2xl bg-muted/50 text-center">
                                 <div className="text-2xl font-bold text-primary">{challenge.participantCount}</div>
                                 <div className="text-sm text-muted-foreground">Participants</div>
@@ -209,7 +209,7 @@ export default function ChallengeDetailPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="p-8 rounded-3xl border border-border bg-card"
+                        className="p-4 sm:p-6 lg:p-8 rounded-3xl border border-border bg-card"
                     >
                         <h2 className="text-2xl font-bold mb-4">About This Challenge</h2>
                         <p className="text-lg text-muted-foreground leading-relaxed">
@@ -234,7 +234,7 @@ export default function ChallengeDetailPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="p-8 rounded-3xl border border-primary/30 bg-primary/5"
+                            className="p-4 sm:p-6 lg:p-8 rounded-3xl border border-primary/30 bg-primary/5"
                         >
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2 bg-primary/20 rounded-xl">

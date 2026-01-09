@@ -1,6 +1,6 @@
-# Evalynx 🌿
+# Greenly 🌿
 
-**Evalynx** is a modern, AI-powered sustainability platform designed to help communities monitor, track, and forecast their collective carbon footprint. By combining social engagement, gamification, and advanced analytics, Evalynx empowers users to take actionable steps towards a greener future.
+**Greenly** is a modern, AI-powered sustainability platform designed to help communities monitor, track, and forecast their collective carbon footprint. By combining social engagement, gamification, and advanced analytics, Greenly empowers users to take actionable steps towards a greener future.
 
 ## ✨ Features
 
@@ -46,8 +46,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/evalynx.git
-   cd evalynx
+   git clone https://github.com/yourusername/Greenly.git
+   cd Greenly
    ```
 
 2. **Install dependencies**
