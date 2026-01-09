@@ -41,7 +41,7 @@ export function Header() {
                         }`}
                 >
                     {/* Left: Logo */}
-                    <div className="flex items-center">
+                    <div className="flex items-center shrink-0">
                         <Link
                             href="/"
                             className="group flex items-center gap-2"
@@ -56,7 +56,7 @@ export function Header() {
                     </div>
 
                     {/* Center: Navigation Pill */}
-                    <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
+                    <div className="hidden md:flex items-center justify-center flex-1 px-4">
                         <div className="flex items-center p-1 rounded-full bg-green-200/80 dark:bg-white/10 border border-green-300 dark:border-white/10 backdrop-blur-md shadow-sm">
                             {navLinks.map((link) => {
                                 const isActive = pathname?.startsWith(link.href);
@@ -66,7 +66,7 @@ export function Header() {
                                     <Link
                                         key={link.href}
                                         href={link.href}
-                                        className={`relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${isActive
+                                        className={`relative px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${isActive
                                             ? "text-white"
                                             : "text-green-800 dark:text-gray-400 hover:text-green-950 dark:hover:text-white"
                                             }`}
@@ -80,7 +80,7 @@ export function Header() {
                                         )}
                                         <span className="relative z-10 flex items-center gap-2">
                                             <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
-                                            {link.label}
+                                            <span className="hidden 2xl:inline">{link.label}</span>
                                         </span>
                                     </Link>
                                 );
@@ -91,7 +91,7 @@ export function Header() {
 
 
                     {/* Right: Auth & Theme */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                         <ThemeToggle />
                         {session && <Notifications />}
 
