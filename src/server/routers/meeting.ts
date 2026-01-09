@@ -94,7 +94,7 @@ export const meetingRouter = router({
 
             // Generate token for host
             const token = generateUserToken(ctx.session.user.id);
-            return { token, apiKey: process.env.STREAM_PUBLIC_KEY };
+            return { token, apiKey: process.env.STREAM_PUBLIC_KEY! };
         }),
 
     join: protectedProcedure
@@ -122,6 +122,6 @@ export const meetingRouter = router({
 
             // Generate token
             const token = generateUserToken(ctx.session.user.id);
-            return { token, apiKey: process.env.STREAM_PUBLIC_KEY };
+            return { token, apiKey: process.env.STREAM_PUBLIC_KEY! };
         }),
 });

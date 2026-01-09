@@ -80,7 +80,7 @@ export default function CommunitySlugPage() {
         }
     });
 
-    const refetchMeetings = trpc.meeting.getByCommunity.useUtils().meeting.getByCommunity;
+    const utils = trpc.useUtils();
 
     const handleInvite = (e: React.FormEvent) => {
         e.preventDefault();
@@ -710,7 +710,7 @@ export default function CommunitySlugPage() {
                 communityId={community.id}
                 isOpen={isCreateMeetingOpen}
                 onClose={() => setIsCreateMeetingOpen(false)}
-                onSuccess={() => refetchMeetings.invalidate()}
+                onSuccess={() => utils.meeting.getByCommunity.invalidate()}
             />
         </div>
     );
