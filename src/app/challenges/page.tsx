@@ -138,10 +138,7 @@ export default function ChallengesPage() {
                     ) : (
                         challenges?.map((challenge: any, index: number) => {
                             const Icon = CHALLENGE_ICONS[challenge.type] || CHALLENGE_ICONS.DEFAULT;
-                            const progress = Math.min(
-                                challenge.participantCount > 0 ? 30 : 0, // Mock progress for visual
-                                100
-                            );
+                            const progress = challenge.progressPercentage || 0;
                             const daysLeft = Math.ceil(
                                 (new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
                             );

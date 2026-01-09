@@ -39,6 +39,17 @@ const CATEGORIES = {
         actions: [
             { id: "energy-grid", label: "Grid Electricity", unit: "kWh" },
         ]
+    },
+    WASTE: {
+        label: "Waste & Plastic",
+        icon: "♻️",
+        color: "text-emerald-500",
+        bg: "bg-emerald-500/10",
+        actions: [
+            { id: "waste-plastic-bottle", label: "Refilled Bottle", unit: "item" },
+            { id: "waste-plastic-bag", label: "Reused Bag", unit: "item" },
+            { id: "waste-packaging", label: "Avoided Packaging", unit: "item" },
+        ]
     }
 };
 
@@ -111,7 +122,7 @@ export default function CarbonTrackingPage() {
     const { data: session, isPending: isSessionLoading } = useSession();
 
     // State
-    const [selectedCategory, setSelectedCategory] = useState<"TRANSPORT" | "DIET" | "ENERGY">("TRANSPORT");
+    const [selectedCategory, setSelectedCategory] = useState<"TRANSPORT" | "DIET" | "ENERGY" | "WASTE">("TRANSPORT");
     const [selectedAction, setSelectedAction] = useState(CATEGORIES.TRANSPORT.actions[0].id);
     const [value, setValue] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -356,7 +367,7 @@ export default function CarbonTrackingPage() {
                                 <p className="text-xs text-muted-foreground mt-1">Your recent activities will appear here.</p>
                             </div>
                         ) : (
-                            historyQuery.data?.map((item) => {
+                            historyQuery.data?.map((item: any) => {
                                 const catKey = Object.keys(CATEGORIES).find(key =>
                                     CATEGORIES[key as keyof typeof CATEGORIES].actions.some(a => a.id === item.action)
                                 ) as keyof typeof CATEGORIES | undefined;

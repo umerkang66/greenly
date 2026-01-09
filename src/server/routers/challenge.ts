@@ -89,6 +89,9 @@ export const challengeRouter = router({
                             slug: true,
                         },
                     },
+                    participants: {
+                        select: { progress: true },
+                    },
                     _count: {
                         select: { participants: true },
                     },
@@ -97,10 +100,16 @@ export const challengeRouter = router({
                 take: input?.limit || 20,
             });
 
-            return challenges.map((c: any) => ({
-                ...c,
-                participantCount: c._count.participants,
-            }));
+            return challenges.map((c: any) => {
+                const totalProgress = c.participants.reduce((sum: number, p: any) => sum + p.progress, 0);
+                return {
+                    ...c,
+                    participantCount: c._count.participants,
+                    totalProgress,
+                    progressPercentage: Math.min((totalProgress / c.goalValue) * 100, 100),
+                };
+            });
+
         }),
 
     // Get single challenge by ID
